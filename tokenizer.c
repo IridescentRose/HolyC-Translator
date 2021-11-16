@@ -227,8 +227,6 @@ void tokenize(const char* filename){
     
     process_content(token_list, content);
 
-    print_tokens(token_list);
-
     printf("Tokenization Complete: %ld Tokens Generated!\n", token_list->size);
     free_tokens(token_list);
     list_delete(token_list);
