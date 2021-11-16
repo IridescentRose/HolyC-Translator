@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2021
  * 
  */
-#include "util.h"
+#include "tokenizer.h"
 
 char* g_input_name = NULL;
 char* g_output_name = NULL;
@@ -77,6 +77,8 @@ void free_names() {
  */
 int main(int argc, char** argv){
     check_args(argc, argv);
+
+    tokenize(g_input_name);
 
     free_names();
     return EXIT_SUCCESS;

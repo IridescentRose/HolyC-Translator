@@ -5,4 +5,4 @@ clean:
 	rm hc2c
 
 valgrind:
-	valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./hc2c
+	valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes ./hc2c tests/test1.hc output.c
