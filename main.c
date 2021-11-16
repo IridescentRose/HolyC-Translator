@@ -68,6 +68,11 @@ void free_names() {
     free(g_output_name);
 }
 
+void free_token_list(List* token_list){
+    free_tokens(token_list);
+    list_delete(token_list);
+}
+
 /**
  * @brief The main function of the HolyC to C translator
  * 
@@ -78,8 +83,9 @@ void free_names() {
 int main(int argc, char** argv){
     check_args(argc, argv);
 
-    tokenize(g_input_name);
+    List* token_list = tokenize(g_input_name);
 
+    free_token_list(token_list);
     free_names();
     return EXIT_SUCCESS;
 }

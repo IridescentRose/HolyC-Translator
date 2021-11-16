@@ -56,6 +56,13 @@ char* get_file_contents(const char* filename){
     return file_str;
 }
 
+/**
+ * @brief Extract a Token for a preprocessor directive.
+ * 
+ * @param content String to extract from 
+ * @param idx*Index pointer to increment
+ * @return Returns a Token
+ */
 Token extract_token_preprocessor(char* content, size_t* idx){
     Token tk;
     tk.slice.len = 0;
@@ -70,6 +77,13 @@ Token extract_token_preprocessor(char* content, size_t* idx){
     return tk;
 }
 
+/**
+ * @brief Extract a Token for an identifier.
+ * 
+ * @param content String to extract from 
+ * @param idx*Index pointer to increment
+ * @return Returns a Token
+ */
 Token extract_token_identifier(char* content, size_t* idx){
     Token tk;
     tk.slice.len = 0;
@@ -92,6 +106,13 @@ Token extract_token_identifier(char* content, size_t* idx){
     return tk;
 }
 
+/**
+ * @brief Extract a Token for a string literal.
+ * 
+ * @param content String to extract from 
+ * @param idx*Index pointer to increment
+ * @return Returns a Token
+ */
 Token extract_token_string(char* content, size_t* idx){
     Token tk;
     tk.slice.len = 1;
@@ -107,6 +128,11 @@ Token extract_token_string(char* content, size_t* idx){
     return tk;
 }
 
+/**
+ *
+ * @param token_list List of tokens to create
+ * @param content String to interpret
+ */
 void process_content(List* token_list, char* content){
     size_t idx = 0;
     size_t len = strlen(content);
@@ -221,14 +247,14 @@ void print_tokens(List* token_list) {
     }
 }
 
-void tokenize(const char* filename){
+List* tokenize(const char* filename){
     char* content = get_file_contents(filename);
     List* token_list = list_new(sizeof(Token), 1);
     
     process_content(token_list, content);
-
-    printf("Tokenization Complete: %ld Tokens Generated!\n", token_list->size);
-    free_tokens(token_list);
-    list_delete(token_list);
     free(content);
+
+    printf("Tokenization Complete: %ld Tokens Generated.\n", token_list->size);
+
+    return token_list;
 }

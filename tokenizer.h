@@ -37,9 +37,23 @@ typedef struct{
     size_t len;
 } StringSlice;
 
+/**
+ * @brief A Token with a type and a string slice
+ *
+ */
 typedef struct{
     TokenType type;
     StringSlice slice;
 } Token;
 
-void tokenize(const char* filename);
+/**
+ * @brief A function to free tokens from a given list.
+ * @param token_list A list of tokens.
+ */
+void free_tokens(List* token_list);
+
+/**
+ * @brief Tokenizes a file into a list of tokens
+ * @param filename File to tokenize
+ */
+List* tokenize(const char* filename);
