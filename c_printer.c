@@ -75,9 +75,9 @@ void emit_declaration(FILE* fp, Declaration* statement) {
     fprintf(fp, ";\n");
 }
 
-void emit_statement_block(FILE* fp, struct ScopeBlock* block);
+void emit_statement_block(FILE* fp, struct ScopeBlock* block, int tab_count);
 
-void emit_definition(FILE* fp, Definition* statement) {
+void emit_definition(FILE* fp, Definition* statement, int tab_count) {
     fprintf(fp, "%s%s %s", type_to_string(statement->type), statement->pointer ? "*" : "", statement->identifier.ptr);
 
     if(statement->is_function) {
@@ -93,11 +93,15 @@ void emit_definition(FILE* fp, Definition* statement) {
     }
 
     fprintf(fp, "{\n");
-    emit_statement_block(fp, statement->function_content);
+    emit_statement_block(fp, statement->function_content, tab_count + 1);
     fprintf(fp, "}\n");
 }
 
-void emit_statement_block(FILE* fp, struct ScopeBlock* block){
+void emit_statement_block(FILE* fp, struct ScopeBlock* block, int tab_count){
+
+    for(int i = 0; i < tab_count; i++){
+        fprintf(fp, "\t");
+    }
     for(size_t i = 0; i < block->statement_list->size; i++){
         Statement* statement = list_at(block->statement_list, i);
 
@@ -108,7 +112,7 @@ void emit_statement_block(FILE* fp, struct ScopeBlock* block){
             }
             
             case STATEMENT_TYPE_DEFINITION: {
-                emit_definition(fp, (Definition*)statement->statementData);
+                emit_definition(fp, (Definition*)statement->statementData, tab_count);
                 break;
             }
             
@@ -135,7 +139,7 @@ void emit_c(Program* program, const char* filename){
     CHECK_NOT_NULL(fp, "Could not access output file!");
 
     emit_header(fp, filename);
-    emit_statement_block(fp, &program->block);
+    emit_statement_block(fp, &program->block, 0);
 
     fclose(fp);
 }
