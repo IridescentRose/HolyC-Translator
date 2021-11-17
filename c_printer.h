@@ -12,8 +12,9 @@
 #include "parser.h"
 
 /**
- * @brief 
+ * @brief Emits C code to a file given a program
  * 
- * @param program 
- * @param filename 
+ * @param program Program to be written
+ * @param filename File name for output
  */
+void emit_c(Program* program, const char* filename);

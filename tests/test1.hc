@@ -1,1 +1,4 @@
-"Hello World!\n";
+#define ABC 0
+#ifdef ABC
+#error Why?
+#endif

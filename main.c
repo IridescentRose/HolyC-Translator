@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2021
  * 
  */
-#include "parser.h"
+#include "c_printer.h"
 
 char* g_input_name = NULL;
 char* g_output_name = NULL;
@@ -84,8 +84,11 @@ int main(int argc, char** argv){
     check_args(argc, argv);
 
     List* token_list = tokenize(g_input_name);
-    //Program* program = parse(token_list);
+    Program* program = parse(token_list);
 
+    emit_c(program, g_output_name);
+
+    free_program(program);
     free_token_list(token_list);
     free_names();
     return EXIT_SUCCESS;

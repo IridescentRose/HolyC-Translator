@@ -19,9 +19,10 @@
  *
  */
 typedef enum{
+    STATEMENT_TYPE_PREPROCESSOR,
     STATEMENT_TYPE_DECLARATION,
     STATEMENT_TYPE_DEFINITION,
-    STATEMENT_TYPE_EXPRESSION
+    STATEMENT_TYPE_EXPRESSION,
 }StatementType;
 
 /**
@@ -47,18 +48,6 @@ typedef enum{
     TYPE_PTR
 } Type;
 
-typedef struct{
-    Type type;
-    void* data;
-} Expression;
-
-typedef struct{
-    StringSlice identifier;
-    Type type;
-    char is_function;
-    void* param;
-} Declaration;
-
 
 /**
  * @brief A scoped block contains a list of statements. These statements are in order and can have definitions.
@@ -70,6 +59,17 @@ struct ScopeBlock{
     struct ScopeBlock* parent; //May be NULL
 };
 
+typedef struct{
+    Type type;
+    void* data;
+} Expression;
+
+typedef struct{
+    StringSlice identifier;
+    Type type;
+    char is_function;
+    void* param;
+} Declaration;
 
 typedef struct{
     StringSlice identifier;
@@ -84,6 +84,10 @@ typedef struct{
     Expression rhs;
 } Definition;
 
+typedef struct{
+    StringSlice text;
+} PreProcessor;
+
 /**
  * @brief A program is just a big globally scoped block for our purposes
  *
@@ -92,4 +96,5 @@ typedef struct{
     struct ScopeBlock block;
 }Program;
 
+void free_program(Program* program);
 Program* parse(List* token_list);

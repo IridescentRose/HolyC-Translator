@@ -68,8 +68,9 @@ Token extract_token_preprocessor(char* content, size_t* idx){
     tk.slice.len = 0;
     tk.slice.ptr = 0;
     tk.type = TOKEN_TYPE_PREPROCESSOR;
+    size_t len = strlen(content);
 
-    for(;content[tk.slice.len + *idx] != '\n'; tk.slice.len++){}
+    for(;content[tk.slice.len + *idx] != '\n' && (tk.slice.len + *idx) < len; tk.slice.len++){}
 
     tk.slice.ptr = make_slice(content, *idx, tk.slice.len);
 

@@ -11,7 +11,7 @@ int main(){
         char buffer1[64];
         char buffer2[128];
         sprintf(buffer1, "tests/test%d.hc", i);
-        sprintf(buffer2, "./hc2c %s result%d.c", buffer1, i);
+        sprintf(buffer2, "./hc2c %s out/result%d.c", buffer1, i);
         
         FILE* fp = fopen(buffer1, "r");
 
@@ -19,16 +19,16 @@ int main(){
             break;
         }
 
+        totalTests++;
         fclose(fp);
 
         int res = system(buffer2);
 
         res ? printf("Test %d failed!\n", i) : testsSuccess++;
-        totalTests++;
         i++;
     }
 
-    printf("[%d/%d] Tests Completed Successfully.\n", totalTests, testsSuccess);
+    printf("[%d/%d] Tests Completed Successfully.\n", testsSuccess, totalTests);
 
     return 0;
 }
