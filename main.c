@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2021
  * 
  */
-#include "tokenizer.h"
+#include "parser.h"
 
 char* g_input_name = NULL;
 char* g_output_name = NULL;
@@ -84,6 +84,7 @@ int main(int argc, char** argv){
     check_args(argc, argv);
 
     List* token_list = tokenize(g_input_name);
+    //Program* program = parse(token_list);
 
     free_token_list(token_list);
     free_names();
