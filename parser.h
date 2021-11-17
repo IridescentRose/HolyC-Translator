@@ -45,7 +45,6 @@ typedef enum{
     TYPE_I32,
     TYPE_I64,
     TYPE_F64,
-    TYPE_PTR
 } Type;
 
 
@@ -67,6 +66,7 @@ typedef struct{
 typedef struct{
     StringSlice identifier;
     Type type;
+    char pointer;
     char is_function;
     void* param;
 } Declaration;
@@ -75,6 +75,7 @@ typedef struct{
     StringSlice identifier;
     Type type;
     char is_function;
+    char pointer;
     
     //If is a function
     void* param;

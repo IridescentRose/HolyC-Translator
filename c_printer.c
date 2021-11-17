@@ -52,9 +52,6 @@ const char* type_to_string(Type type){
         case TYPE_F64: {
             return "double";
         }
-        case TYPE_PTR: {
-            return "*";
-        }
     }
 
     return "(null)";

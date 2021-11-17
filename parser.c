@@ -34,7 +34,7 @@ void make_preprocessor(Program* program, Token* token) {
     list_push(program->block.statement_list, &statement);
 }
 
-void make_variable_declaration(Program* program, StringSlice identifier, Type type) {
+void make_variable_declaration(Program* program, StringSlice identifier, Type type, char pointer) {
     Statement statement;
     statement.type = STATEMENT_TYPE_DECLARATION;
 
@@ -42,6 +42,7 @@ void make_variable_declaration(Program* program, StringSlice identifier, Type ty
     decl->type = type;
     decl->identifier = identifier;
     decl->is_function = 0;
+    decl->pointer = pointer;
 
     statement.statementData = decl;
     list_push(program->block.statement_list, &statement);
@@ -103,6 +104,16 @@ void parse_token_program(Program* program, List* token_list, size_t* idx){
             Token* next_tok = list_at(token_list, *idx);
             CHECK_NOT_NULL(next_tok, "Error: Unexpected end of file!");
 
+            char pointer = 0;
+            if(next_tok->type == TOKEN_TYPE_ARITHMETIC && next_tok->slice.ptr[0] == '*'){
+                //It's a pointer
+                pointer = 1;
+                
+                (*idx)++;
+                next_tok = list_at(token_list, *idx);
+                CHECK_NOT_NULL(next_tok, "Error: Unexpected end of file!");
+            }
+            
             if(next_tok->type != TOKEN_TYPE_IDENTIFIER){
                 CHECK_FAILED("Error: Expected Identifier After Primitive!\n");
             }
@@ -117,7 +128,7 @@ void parse_token_program(Program* program, List* token_list, size_t* idx){
                 //This is a function
             } else if (next_tok->type == TOKEN_TYPE_TERMINATOR){
                 //This was a variable
-                make_variable_declaration(program, identifier, type);
+                make_variable_declaration(program, identifier, type, pointer);
                 (*idx)++;
             } else if (next_tok->type == TOKEN_TYPE_ASSIGNMENT){
                 //This is a fused Declaration + Assignment
