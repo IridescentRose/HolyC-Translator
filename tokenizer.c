@@ -248,6 +248,30 @@ void print_tokens(List* token_list) {
     }
 }
 
+int check_primitive(Token* tk){
+    char* prims[10] = {"U0", "U8", "U16", "U32", "U64", "I8", "I16", "I32", "I64", "F64"};
+
+    for(size_t i = 0; i < 10; i++){
+        if(strcmp(tk->slice.ptr, prims[i]) == 0){
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+void validate_identifiers(List* token_list){
+    for(size_t i = 0; i < token_list->size; i++){
+        Token* tk = list_at(token_list, i);
+
+        if(tk->type == TOKEN_TYPE_IDENTIFIER) {
+            if(check_primitive(tk)) {
+                tk->type = TOKEN_TYPE_PRIMITIVE;
+            }
+        }
+    }
+}
+
 List* tokenize(const char* filename){
     char* content = get_file_contents(filename);
     List* token_list = list_new(sizeof(Token), 1);
@@ -255,6 +279,7 @@ List* tokenize(const char* filename){
     process_content(token_list, content);
     free(content);
 
+    validate_identifiers(token_list);
     printf("Tokenization Complete: %ld Tokens Generated.\n", token_list->size);
 
     return token_list;

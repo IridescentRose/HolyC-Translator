@@ -18,12 +18,63 @@ void emit_preprocessor(FILE* fp, PreProcessor* statement) {
     fprintf(fp, "%s\n", statement->text.ptr);
 }
 
+const char* type_to_string(Type type){
+    switch(type){
+        case TYPE_U0: {
+            return "void";
+        }
+        case TYPE_U8: {
+            return "unsigned char";
+        }
+        case TYPE_U16: {
+            return "unsigned short int";
+        }
+        case TYPE_U32: {
+            return "unsigned long int";
+        }
+        case TYPE_U64: {
+            return "unsigned long long int";
+        }
+        
+        case TYPE_I8: {
+            return "signed char";
+        }
+        case TYPE_I16: {
+            return "signed short int";
+        }
+        case TYPE_I32: {
+            return "signed long int";
+        }
+        case TYPE_I64: {
+            return "signed long long int";
+        }
+
+        case TYPE_F64: {
+            return "double";
+        }
+        case TYPE_PTR: {
+            return "*";
+        }
+    }
+
+    return "(null)";
+}
+
+void emit_declaration(FILE* fp, Declaration* statement) {
+    if(statement->is_function){
+
+    }else{
+        fprintf(fp, "%s %s;", type_to_string(statement->type), statement->identifier.ptr);
+    }
+}
+
 void emit_statement_block(FILE* fp, struct ScopeBlock* block){
     for(size_t i = 0; i < block->statement_list->size; i++){
         Statement* statement = list_at(block->statement_list, i);
 
         switch (statement->type) {
             case STATEMENT_TYPE_DECLARATION: {
+                emit_declaration(fp, (Declaration*)statement->statementData);
                 break;
             }
             

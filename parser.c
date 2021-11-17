@@ -34,6 +34,55 @@ void make_preprocessor(Program* program, Token* token) {
     list_push(program->block.statement_list, &statement);
 }
 
+void make_variable_declaration(Program* program, StringSlice identifier, Type type) {
+    Statement statement;
+    statement.type = STATEMENT_TYPE_DECLARATION;
+
+    Declaration* decl = (Declaration*)calloc(1, sizeof(Declaration));
+    decl->type = type;
+    decl->identifier = identifier;
+    decl->is_function = 0;
+
+    statement.statementData = decl;
+    list_push(program->block.statement_list, &statement);
+}
+
+Type get_type(StringSlice slice){
+    
+    if(strcmp(slice.ptr, "U0") == 0){
+        return TYPE_U0;
+    }
+    if(strcmp(slice.ptr, "U8") == 0){
+        return TYPE_U8;
+    }
+    if(strcmp(slice.ptr, "U16") == 0){
+        return TYPE_U16;
+    }
+    if(strcmp(slice.ptr, "U32") == 0){
+        return TYPE_U32;
+    }
+    if(strcmp(slice.ptr, "U64") == 0){
+        return TYPE_U64;
+    }
+    if(strcmp(slice.ptr, "I8") == 0){
+        return TYPE_I8;
+    }
+    if(strcmp(slice.ptr, "I16") == 0){
+        return TYPE_I16;
+    }
+    if(strcmp(slice.ptr, "I32") == 0){
+        return TYPE_I32;
+    }
+    if(strcmp(slice.ptr, "I64") == 0){
+        return TYPE_I64;
+    }
+    if(strcmp(slice.ptr, "F64") == 0){
+        return TYPE_F64;
+    }
+
+    return -1;
+}
+
 void parse_token_program(Program* program, List* token_list, size_t* idx){
     Token* token = list_at(token_list, *idx);
     //Token* next_token = list_at(token_list, *idx + 1);
@@ -42,6 +91,38 @@ void parse_token_program(Program* program, List* token_list, size_t* idx){
         case TOKEN_TYPE_PREPROCESSOR: {
             make_preprocessor(program, token);
             (*idx)++;
+
+            break;
+        }
+
+        case TOKEN_TYPE_PRIMITIVE: {
+            //Upon receiving a primitive, we have to check what it is.
+            Type type = get_type(token->slice);
+
+            (*idx)++;
+            Token* next_tok = list_at(token_list, *idx);
+            CHECK_NOT_NULL(next_tok, "Error: Unexpected end of file!");
+
+            if(next_tok->type != TOKEN_TYPE_IDENTIFIER){
+                CHECK_FAILED("Error: Expected Identifier After Primitive!\n");
+            }
+            
+            StringSlice identifier = next_tok->slice;
+
+            (*idx)++;
+            next_tok = list_at(token_list, *idx);
+            CHECK_NOT_NULL(next_tok, "Error: Unexpected end of file!");
+
+            if(next_tok->type == TOKEN_TYPE_PUNCTUATOR){
+                //This is a function
+            } else if (next_tok->type == TOKEN_TYPE_TERMINATOR){
+                //This was a variable
+                make_variable_declaration(program, identifier, type);
+                (*idx)++;
+            } else if (next_tok->type == TOKEN_TYPE_ASSIGNMENT){
+                //This is a fused Declaration + Assignment
+                CHECK_FAILED("TODO: COMPOUND DECLARATION & ASSIGNMENT");
+            }
 
             break;
         }
@@ -68,6 +149,12 @@ void free_program(Program* program){
             case STATEMENT_TYPE_PREPROCESSOR:{
                 PreProcessor* preproc = (PreProcessor*)st->statementData;
                 free(preproc);
+                break;
+            }
+
+            case STATEMENT_TYPE_DECLARATION:{
+                Declaration* decl = (Declaration*)st->statementData;
+                free(decl);
                 break;
             }
 

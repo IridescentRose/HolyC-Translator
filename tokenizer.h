@@ -12,20 +12,21 @@
 #include "util.h"
 
 typedef enum{
-    TOKEN_TYPE_TERMINATOR,  /* Literally just semicolon */
-    TOKEN_TYPE_IDENTIFIER,  /* Any valid identifier - this includes function names and primitives. */
-    TOKEN_TYPE_PUNCTUATOR,  /* Parentheses () OR Brackets [] */
-    TOKEN_TYPE_SCOPING,     /* Define a scope using braces {} */
-    TOKEN_TYPE_ARITHMETIC,  /* Arithmetic operators (+ - * / % ++ --) */
-    TOKEN_TYPE_BITWISE,     /* Bitwise operators (& | ^ ~ << >>) */
-    TOKEN_TYPE_LOGIC,       /* Logical operators (&& || !) */
-    TOKEN_TYPE_RELATION,    /* Relational operators (== != > < <= >= <=) */
-    TOKEN_TYPE_ASSIGNMENT,  /* Assignment operators (Arithmetic/Bitwise + = or solo =) */
-    TOKEN_TYPE_MISC,        /* Miscellaneous operators (sizeof, ?) */
-    TOKEN_TYPE_PREPROCESSOR,/* Starts with a # */
-    TOKEN_TYPE_IMMEDIATE,   /* Starts with a number [0-9] */
-    TOKEN_TYPE_STRING,      /* Starts with "" */
-    TOKEN_TYPE_NEWLINE,     /* '\n' I'm not sure if I need this - I just want to keep track. */
+    TOKEN_TYPE_TERMINATOR   = 0,    /* Literally just semicolon */
+    TOKEN_TYPE_IDENTIFIER   = 1,    /* Any valid identifier - this includes function names and primitives. */
+    TOKEN_TYPE_PUNCTUATOR   = 2,    /* Parentheses () OR Brackets [] */
+    TOKEN_TYPE_SCOPING      = 3,    /* Define a scope using braces {} */
+    TOKEN_TYPE_ARITHMETIC   = 4,    /* Arithmetic operators (+ - * / % ++ --) */
+    TOKEN_TYPE_BITWISE      = 5,    /* Bitwise operators (& | ^ ~ << >>) */
+    TOKEN_TYPE_LOGIC        = 6,    /* Logical operators (&& || !) */
+    TOKEN_TYPE_RELATION     = 7,    /* Relational operators (== != > < <= >= <=) */
+    TOKEN_TYPE_ASSIGNMENT   = 8,    /* Assignment operators (Arithmetic/Bitwise + = or solo =) */
+    TOKEN_TYPE_MISC         = 9,    /* Miscellaneous operators (sizeof, ?) */
+    TOKEN_TYPE_PREPROCESSOR = 10,   /* Starts with a # */
+    TOKEN_TYPE_IMMEDIATE    = 11,   /* Starts with a number [0-9] */
+    TOKEN_TYPE_STRING       = 12,   /* Starts with "" */
+    TOKEN_TYPE_NEWLINE      = 13,   /* '\n' I'm not sure if I need this - I just want to keep track. */
+    TOKEN_TYPE_PRIMITIVE    = 14,   /* Primitives. */
 } TokenType;
 
 /**
