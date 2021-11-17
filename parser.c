@@ -22,7 +22,7 @@ void validate_preprocessor(Token* token) {
     }
 }
 
-void make_preprocessor(Program* program, Token* token) {
+void make_preprocessor(List* list, Token* token) {
     validate_preprocessor(token);
     Statement statement;
     statement.type = STATEMENT_TYPE_PREPROCESSOR;
@@ -31,10 +31,10 @@ void make_preprocessor(Program* program, Token* token) {
     preproc->text = token->slice;
 
     statement.statementData = preproc;
-    list_push(program->block.statement_list, &statement);
+    list_push(list, &statement);
 }
 
-void make_variable_declaration(Program* program, StringSlice identifier, Type type, char pointer) {
+void make_variable_declaration(List* list, StringSlice identifier, Type type, char pointer) {
     Statement statement;
     statement.type = STATEMENT_TYPE_DECLARATION;
 
@@ -45,7 +45,38 @@ void make_variable_declaration(Program* program, StringSlice identifier, Type ty
     decl->pointer = pointer;
 
     statement.statementData = decl;
-    list_push(program->block.statement_list, &statement);
+    list_push(list, &statement);
+}
+
+void make_function_declaration(List* list, StringSlice identifier, Type type, char pointer, Arguments args) {
+    Statement statement;
+    statement.type = STATEMENT_TYPE_DECLARATION;
+
+    Declaration* decl = (Declaration*)calloc(1, sizeof(Declaration));
+    decl->type = type;
+    decl->identifier = identifier;
+    decl->is_function = 1;
+    decl->pointer = pointer;
+    decl->args = args;
+
+    statement.statementData = decl;
+    list_push(list, &statement);
+}
+
+void make_function_definition(List* list, StringSlice identifier, Type type, char pointer, Arguments args, struct ScopeBlock* statement_list) {
+    Statement statement;
+    statement.type = STATEMENT_TYPE_DEFINITION;
+
+    Definition* def = (Definition*)calloc(1, sizeof(Definition));
+    def->type = type;
+    def->identifier = identifier;
+    def->is_function = 1;
+    def->pointer = pointer;
+    def->args = args;
+    def->function_content = statement_list;
+
+    statement.statementData = def;
+    list_push(list, &statement);
 }
 
 Type get_type(StringSlice slice){
@@ -84,34 +115,38 @@ Type get_type(StringSlice slice){
     return -1;
 }
 
-void parse_token_program(Program* program, List* token_list, size_t* idx){
+Token* get_next(List* token_list, size_t* idx){
+    (*idx)++;
+    Token* next_tok = list_at(token_list, *idx);
+    CHECK_NOT_NULL(next_tok, "Error: Unexpected end of file!");
+
+    return next_tok;
+}
+
+void parse_token_program(struct ScopeBlock* block, List* token_list, size_t* idx){
     Token* token = list_at(token_list, *idx);
-    //Token* next_token = list_at(token_list, *idx + 1);
 
     switch(token->type){
         case TOKEN_TYPE_PREPROCESSOR: {
-            make_preprocessor(program, token);
+            make_preprocessor(block->statement_list, token);
             (*idx)++;
 
+            break;
+        }
+
+        case TOKEN_TYPE_SCOPING: {
             break;
         }
 
         case TOKEN_TYPE_PRIMITIVE: {
             //Upon receiving a primitive, we have to check what it is.
             Type type = get_type(token->slice);
-
-            (*idx)++;
-            Token* next_tok = list_at(token_list, *idx);
-            CHECK_NOT_NULL(next_tok, "Error: Unexpected end of file!");
+            Token* next_tok = get_next(token_list, idx);
 
             char pointer = 0;
             if(next_tok->type == TOKEN_TYPE_ARITHMETIC && next_tok->slice.ptr[0] == '*'){
-                //It's a pointer
                 pointer = 1;
-                
-                (*idx)++;
-                next_tok = list_at(token_list, *idx);
-                CHECK_NOT_NULL(next_tok, "Error: Unexpected end of file!");
+                next_tok = get_next(token_list, idx);
             }
             
             if(next_tok->type != TOKEN_TYPE_IDENTIFIER){
@@ -119,27 +154,69 @@ void parse_token_program(Program* program, List* token_list, size_t* idx){
             }
             
             StringSlice identifier = next_tok->slice;
-
-            (*idx)++;
-            next_tok = list_at(token_list, *idx);
-            CHECK_NOT_NULL(next_tok, "Error: Unexpected end of file!");
+            next_tok = get_next(token_list, idx);
 
             if(next_tok->type == TOKEN_TYPE_PUNCTUATOR){
                 //This is a function
+
+                next_tok = get_next(token_list, idx);
+                
+                Arguments args;
+                memset(&args, 0, sizeof(Arguments));
+                for(int i = 0; i < 16; i++){
+                    args.types[i] = -1;
+                }
+
+                int count = 0;
+
+                while(next_tok->type != TOKEN_TYPE_PUNCTUATOR && next_tok->slice.ptr[0] != ')'){
+                    //Gather args data
+
+                    if(next_tok->type == TOKEN_TYPE_PRIMITIVE){
+                        args.types[count] = get_type(next_tok->slice);
+                    } else {
+                        CHECK_FAILED("Error: Expected Primitive after punctuator! Got %d %s!\n", next_tok->type, next_tok->slice.ptr);
+                    }
+
+                    next_tok = get_next(token_list, idx);
+
+                    //Next type can either be an ID or a punctuator
+                    if(next_tok->type == TOKEN_TYPE_IDENTIFIER){
+                        args.identifiers[count++] = next_tok->slice.ptr;
+                        next_tok = get_next(token_list, idx);
+                    } else {
+                        args.identifiers[count++] = NULL;
+                    }
+                }
+
+                next_tok = get_next(token_list, idx);
+                if(next_tok->type == TOKEN_TYPE_TERMINATOR) {
+                    make_function_declaration(block->statement_list, identifier, type, pointer, args);
+                } else if(next_tok->type == TOKEN_TYPE_SCOPING) {
+                    //Function definition;
+                    struct ScopeBlock* statementBlock = (struct ScopeBlock*)calloc(1, sizeof(struct ScopeBlock));
+                    statementBlock->parent = block;
+                    statementBlock->statement_list = list_new(sizeof(Statement), 32);
+
+                    (*idx)++;
+                    Token* test = list_at(token_list, *idx);
+                    
+                    while(test && test->type != TOKEN_TYPE_SCOPING){
+                        parse_token_program(statementBlock, token_list, idx);
+                        test = list_at(token_list, *idx);
+                    }
+                    
+                    make_function_definition(block->statement_list, identifier, type, pointer, args, statementBlock);
+                    //CHECK_FAILED("WOOPS!\n");
+                }
             } else if (next_tok->type == TOKEN_TYPE_TERMINATOR){
-                //This was a variable
-                make_variable_declaration(program, identifier, type, pointer);
-                (*idx)++;
+                make_variable_declaration(block->statement_list, identifier, type, pointer);
             } else if (next_tok->type == TOKEN_TYPE_ASSIGNMENT){
                 //This is a fused Declaration + Assignment
-                CHECK_FAILED("TODO: COMPOUND DECLARATION & ASSIGNMENT");
+                CHECK_FAILED("TODO: COMPOUND DECLARATION & ASSIGNMENT\n");
             }
-
-            break;
-        }
-
-        case TOKEN_TYPE_NEWLINE:{
             (*idx)++;
+
             break;
         }
 
@@ -151,10 +228,10 @@ void parse_token_program(Program* program, List* token_list, size_t* idx){
 }
 
 
-void free_program(Program* program){
+void free_program(struct ScopeBlock* block){
 
-    for(size_t i = 0; i < program->block.statement_list->size; i++){
-        Statement* st = list_at(program->block.statement_list, i);
+    for(size_t i = 0; i < block->statement_list->size; i++){
+        Statement* st = list_at(block->statement_list, i);
 
         switch(st->type){
             case STATEMENT_TYPE_PREPROCESSOR:{
@@ -168,6 +245,14 @@ void free_program(Program* program){
                 free(decl);
                 break;
             }
+            
+            case STATEMENT_TYPE_DEFINITION:{
+                Definition* def = (Definition*)st->statementData;
+                free_program(def->function_content);
+                free(def->function_content);
+                free(def);
+                break;
+            }
 
             default: {
                 free(st->statementData);
@@ -176,8 +261,7 @@ void free_program(Program* program){
         }
     }
 
-    list_delete(program->block.statement_list);
-    free(program);
+    list_delete(block->statement_list);
 }
 
 Program* parse(List* token_list){
@@ -186,7 +270,7 @@ Program* parse(List* token_list){
 
     size_t idx = 0; 
     while(idx < token_list->size){
-        parse_token_program(program, token_list, &idx);
+        parse_token_program(&program->block, token_list, &idx);
     }
 
     return program;

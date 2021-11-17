@@ -64,25 +64,27 @@ typedef struct{
 } Expression;
 
 typedef struct{
+    Type types[16];
+    char* identifiers[16];
+} Arguments;
+
+typedef struct{
     StringSlice identifier;
     Type type;
     char pointer;
     char is_function;
-    void* param;
+    Arguments args;
 } Declaration;
 
 typedef struct{
     StringSlice identifier;
     Type type;
-    char is_function;
     char pointer;
-    
-    //If is a function
-    void* param;
-    struct ScopeBlock* function_content;
+    char is_function;
+    Arguments args;
 
-    //Else it's an assignment
-    Expression rhs;
+    //Function definition
+    struct ScopeBlock* function_content;
 } Definition;
 
 typedef struct{
@@ -97,5 +99,5 @@ typedef struct{
     struct ScopeBlock block;
 }Program;
 
-void free_program(Program* program);
+void free_program(struct ScopeBlock* program);
 Program* parse(List* token_list);

@@ -142,6 +142,7 @@ void process_content(List* token_list, char* content){
 
         switch(content[idx]) {
             case ' ':
+            case '\n':
             case '\t': {
                 idx++; 
                 break;
@@ -155,14 +156,6 @@ void process_content(List* token_list, char* content){
             
             case '\"': {
                 temp = extract_token_string(content, &idx);
-                list_push(token_list, &temp);
-                break;
-            }
-
-            case '\n': {
-                temp.type = TOKEN_TYPE_NEWLINE;
-                temp.slice.ptr = make_slice(content, idx++, 1);
-                temp.slice.len = 1;
                 list_push(token_list, &temp);
                 break;
             }
@@ -188,7 +181,7 @@ void process_content(List* token_list, char* content){
             }
 
             //TODO: MORE ARITHMETIC
-            //TODO: CHECK PTR VS MULT IN LEXICAL ANALYSIS
+            //TODO: CHECK PTR VS MULT IN LEXICAL ANALYSIS / PARSING
             case '*': {
                 temp.type = TOKEN_TYPE_ARITHMETIC;
                 temp.slice.ptr = make_slice(content, idx++, 1);

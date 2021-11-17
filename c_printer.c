@@ -58,11 +58,43 @@ const char* type_to_string(Type type){
 }
 
 void emit_declaration(FILE* fp, Declaration* statement) {
-    if(statement->is_function){
+    fprintf(fp, "%s%s %s", type_to_string(statement->type), statement->pointer ? "*" : "", statement->identifier.ptr);
 
-    }else{
-        fprintf(fp, "%s%s %s;", type_to_string(statement->type), statement->pointer ? "*" : "", statement->identifier.ptr);
+    if(statement->is_function) {
+        fprintf(fp, "(");
+
+        int count = 0;
+        while((int)statement->args.types[count] != -1){
+            fprintf(fp, "%s %s%s", type_to_string(statement->args.types[count]), statement->args.identifiers[count] ? statement->args.identifiers[count] : "", (int)statement->args.types[count + 1] != -1 ? "," : "");
+            count++;
+        }
+
+        fprintf(fp, ")");
     }
+
+    fprintf(fp, ";\n");
+}
+
+void emit_statement_block(FILE* fp, struct ScopeBlock* block);
+
+void emit_definition(FILE* fp, Definition* statement) {
+    fprintf(fp, "%s%s %s", type_to_string(statement->type), statement->pointer ? "*" : "", statement->identifier.ptr);
+
+    if(statement->is_function) {
+        fprintf(fp, "(");
+
+        int count = 0;
+        while((int)statement->args.types[count] != -1){
+            fprintf(fp, "%s %s%s", type_to_string(statement->args.types[count]), statement->args.identifiers[count] ? statement->args.identifiers[count] : "", (int)statement->args.types[count + 1] != -1 ? "," : "");
+            count++;
+        }
+
+        fprintf(fp, ")");
+    }
+
+    fprintf(fp, "{\n");
+    emit_statement_block(fp, statement->function_content);
+    fprintf(fp, "}\n");
 }
 
 void emit_statement_block(FILE* fp, struct ScopeBlock* block){
@@ -76,6 +108,7 @@ void emit_statement_block(FILE* fp, struct ScopeBlock* block){
             }
             
             case STATEMENT_TYPE_DEFINITION: {
+                emit_definition(fp, (Definition*)statement->statementData);
                 break;
             }
             

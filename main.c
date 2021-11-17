@@ -88,7 +88,8 @@ int main(int argc, char** argv){
 
     emit_c(program, g_output_name);
 
-    free_program(program);
+    free_program(&program->block);
+    free(program);
     free_token_list(token_list);
     free_names();
     return EXIT_SUCCESS;
