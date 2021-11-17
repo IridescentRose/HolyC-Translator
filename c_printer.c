@@ -61,7 +61,7 @@ void emit_declaration(FILE* fp, Declaration* statement) {
     if(statement->is_function){
 
     }else{
-        fprintf(fp, "%s %s;", type_to_string(statement->type), statement->identifier.ptr);
+        fprintf(fp, "%s%s %s;", type_to_string(statement->type), statement->pointer ? "*" : "", statement->identifier.ptr);
     }
 }
 
