@@ -80,6 +80,7 @@ typedef struct{
     Type type;
     char pointer;
     char is_function;
+    char externf;
     Arguments args;
 } Declaration;
 

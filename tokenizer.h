@@ -27,6 +27,7 @@ typedef enum{
     TOKEN_TYPE_STRING       = 12,   /* Starts with "" */
     TOKEN_TYPE_PRIMITIVE    = 13,   /* Primitives. */
     TOKEN_TYPE_RETURN       = 14,   /* Return. */
+    TOKEN_TYPE_EXTERN       = 15,   /* Extern. */
 } TokenType;
 
 /**

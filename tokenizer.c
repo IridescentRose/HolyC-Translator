@@ -304,6 +304,9 @@ void validate_identifiers(List* token_list){
             if(strcmp("return", tk->slice.ptr) == 0){
                 tk->type = TOKEN_TYPE_RETURN;
             }
+            if(strcmp("extern", tk->slice.ptr) == 0){
+                tk->type = TOKEN_TYPE_EXTERN;
+            }
         }
     }
 }

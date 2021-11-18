@@ -34,7 +34,7 @@ void make_preprocessor(List* list, Token* token) {
     list_push(list, &statement);
 }
 
-void make_variable_declaration(List* list, StringSlice identifier, Type type, char pointer) {
+void make_variable_declaration(List* list, StringSlice identifier, Type type, char pointer, char externf) {
     Statement statement;
     statement.type = STATEMENT_TYPE_DECLARATION;
 
@@ -43,12 +43,13 @@ void make_variable_declaration(List* list, StringSlice identifier, Type type, ch
     decl->identifier = identifier;
     decl->is_function = 0;
     decl->pointer = pointer;
+    decl->externf = externf;
 
     statement.statementData = decl;
     list_push(list, &statement);
 }
 
-void make_function_declaration(List* list, StringSlice identifier, Type type, char pointer, Arguments args) {
+void make_function_declaration(List* list, StringSlice identifier, Type type, char pointer, char externf, Arguments args) {
     Statement statement;
     statement.type = STATEMENT_TYPE_DECLARATION;
 
@@ -58,6 +59,7 @@ void make_function_declaration(List* list, StringSlice identifier, Type type, ch
     decl->is_function = 1;
     decl->pointer = pointer;
     decl->args = args;
+    decl->externf = externf;
 
     statement.statementData = decl;
     list_push(list, &statement);
@@ -150,6 +152,7 @@ Token* get_next(List* token_list, size_t* idx){
 void parse_token_program(struct ScopeBlock* block, List* token_list, size_t* idx){
     Token* token = list_at(token_list, *idx);
 
+    int externf = 0;
     switch(token->type){
         case TOKEN_TYPE_PREPROCESSOR: {
             make_preprocessor(block->statement_list, token);
@@ -248,6 +251,10 @@ void parse_token_program(struct ScopeBlock* block, List* token_list, size_t* idx
             break;
         }
 
+        case TOKEN_TYPE_EXTERN:
+            token = get_next(token_list, idx);
+            externf = 1;
+            __attribute__ ((fallthrough)); //Explicit fallthrough
         case TOKEN_TYPE_PRIMITIVE: {
             //Upon receiving a primitive, we have to check what it is.
             Type type = get_type(token->slice);
@@ -312,7 +319,7 @@ void parse_token_program(struct ScopeBlock* block, List* token_list, size_t* idx
 
                 next_tok = get_next(token_list, idx);
                 if(next_tok->type == TOKEN_TYPE_TERMINATOR) {
-                    make_function_declaration(block->statement_list, identifier, type, pointer, args);
+                    make_function_declaration(block->statement_list, identifier, type, pointer, externf, args);
                 } else if(next_tok->type == TOKEN_TYPE_SCOPING) {
                     //Function definition;
                     struct ScopeBlock* statementBlock = (struct ScopeBlock*)calloc(1, sizeof(struct ScopeBlock));
@@ -331,7 +338,7 @@ void parse_token_program(struct ScopeBlock* block, List* token_list, size_t* idx
                     //CHECK_FAILED("WOOPS!\n");
                 }
             } else if (next_tok->type == TOKEN_TYPE_TERMINATOR){
-                make_variable_declaration(block->statement_list, identifier, type, pointer);
+                make_variable_declaration(block->statement_list, identifier, type, pointer, externf);
             } else if (next_tok->type == TOKEN_TYPE_ASSIGNMENT){
                 //This is a fused Declaration + Assignment
                 CHECK_FAILED("TODO: COMPOUND DECLARATION & ASSIGNMENT\n");
