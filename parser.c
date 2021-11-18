@@ -296,7 +296,12 @@ void parse_token_program(struct ScopeBlock* block, List* token_list, size_t* idx
                     if(next_tok->type == TOKEN_TYPE_PRIMITIVE){
                         args.types[count] = get_type(next_tok->slice);
                     } else {
-                        CHECK_FAILED("Error: Expected Primitive after punctuator! Got %d %s!\n", next_tok->type, next_tok->slice.ptr);
+                        if(next_tok->slice.ptr[0] == '.'){
+                            next_tok = get_next(token_list, idx);
+                            next_tok = get_next(token_list, idx);
+                        }else{
+                            CHECK_FAILED("Error: Expected Primitive after punctuator! Got %d %s!\n", next_tok->type, next_tok->slice.ptr);
+                        }
                     }
 
                     next_tok = get_next(token_list, idx);
