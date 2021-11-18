@@ -9,7 +9,7 @@
  * 
  */
 
- #include "parser.h"
+#include "parser.h"
 
 void validate_preprocessor(Token* token) {
     char* res1 = strstr(token->slice.ptr, "#ifaot");
@@ -19,6 +19,35 @@ void validate_preprocessor(Token* token) {
         free(token->slice.ptr);
         token->slice.ptr = dupe_string("#if 0");
         token->slice.len = 6;
+    }
+
+    char* res3 = strstr(token->slice.ptr, "#exe{");
+
+    if(res3){
+
+        int len = 0;
+
+        while( (res3+6)[len] != '}'){
+            len++;
+        }
+
+        char* command = make_slice(res3, 6, len);
+
+        FILE* fp = popen(command, "r");
+        char buffer[1024];
+        char* res = fgets(buffer, sizeof(buffer), fp);
+        CHECK_NOT_NULL(res, "Error: Couldn't execute process!");
+
+        token->slice.ptr = realloc(token->slice.ptr, token->slice.len - len - 6 + strlen(res));
+        res3[0] = 0;
+        res[strlen(res) - 1] = 0;
+
+        strcat(token->slice.ptr, "\"");
+        strcat(token->slice.ptr, res);
+        strcat(token->slice.ptr, "\"");
+
+        printf("%s\n", buffer);
+        free(command);
     }
 }
 
@@ -346,7 +375,24 @@ void parse_token_program(struct ScopeBlock* block, List* token_list, size_t* idx
                 make_variable_declaration(block->statement_list, identifier, type, pointer, externf);
             } else if (next_tok->type == TOKEN_TYPE_ASSIGNMENT){
                 //This is a fused Declaration + Assignment
-                CHECK_FAILED("TODO: COMPOUND DECLARATION & ASSIGNMENT\n");
+                make_variable_declaration(block->statement_list, identifier, type, pointer, externf);
+                
+                Expression* expr = (Expression*)calloc(1, sizeof(Expression));
+                strcat(expr->buffer, identifier.ptr);
+                strcat(expr->buffer, next_tok->slice.ptr);
+
+                next_tok = get_next(token_list, idx);
+                while(next_tok->type != TOKEN_TYPE_TERMINATOR){
+                    strcat(expr->buffer, next_tok->slice.ptr);
+                    next_tok = get_next(token_list, idx);
+                }
+
+                Statement statement;
+                statement.type = STATEMENT_TYPE_EXPRESSION;
+                statement.statementData = expr;
+
+                list_push(block->statement_list, &statement);
+                //CHECK_FAILED("TODO: COMPOUND DECLARATION & ASSIGNMENT\n");
             }
             (*idx)++;
 

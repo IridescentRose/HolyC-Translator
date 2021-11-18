@@ -71,7 +71,7 @@ void emit_expression(FILE* fp, Expression* statement){
 }
 
 void emit_declaration(FILE* fp, Declaration* statement) {
-    fprintf(fp, "%s %s%s %s", statement->externf ? "extern" : "\r", type_to_string(statement->type), statement->pointer ? "*" : "", statement->identifier.ptr);
+    fprintf(fp, "%s%s%s %s", statement->externf ? "extern " : "", type_to_string(statement->type), statement->pointer ? "*" : "", statement->identifier.ptr);
 
     if(statement->is_function) {
         fprintf(fp, "(");
