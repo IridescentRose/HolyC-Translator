@@ -26,6 +26,7 @@ typedef enum{
     TOKEN_TYPE_IMMEDIATE    = 11,   /* Starts with a number [0-9] */
     TOKEN_TYPE_STRING       = 12,   /* Starts with "" */
     TOKEN_TYPE_PRIMITIVE    = 13,   /* Primitives. */
+    TOKEN_TYPE_RETURN       = 14,   /* Return. */
 } TokenType;
 
 /**

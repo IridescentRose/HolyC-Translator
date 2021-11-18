@@ -154,10 +154,12 @@ void emit_statement_block(FILE* fp, struct ScopeBlock* block, int tab_count){
 void emit_main(FILE* fp, struct ScopeBlock* block){
 
     if(idx_list->size != 0){
+        printf("%p\n", (void*)idx_list);
         fprintf(fp, "int main(int argc, char** argv){\n");
 
         for(size_t i = 0; i < idx_list->size; i++){
-            size_t idx = *((size_t*)list_at(idx_list, i));
+            printf("%d\n", (int)i);
+            int idx = *((int*)list_at(idx_list, i));
 
             Statement* statement = (Statement*)list_at(block->statement_list, idx);
 

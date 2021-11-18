@@ -94,7 +94,7 @@ Token extract_token_identifier(char* content, size_t* idx){
     while(1){
         char s = content[tk.slice.len + *idx];
 
-        if(!((s >= 'a' && s <= 'z') || (s >= 'A' && s <= 'Z') || (s >= '0' && s <= '9'))){
+        if(!((s >= 'a' && s <= 'z') || (s >= 'A' && s <= 'Z') || (s >= '0' && s <= '9') || s == '_')){
             break;
         }else{
             tk.slice.len++;
@@ -190,9 +190,19 @@ void process_content(List* token_list, char* content){
                 break;
             }
 
+
+            case '=': {
+                temp.type = TOKEN_TYPE_ASSIGNMENT;
+                temp.slice.ptr = make_slice(content, idx++, 1);
+                temp.slice.len = 1;
+                list_push(token_list, &temp);
+                break;
+            }
+
             case '(':
             case ')':
             case ',':
+            case '.':
             case '[':
             case ']': {
                 temp.type = TOKEN_TYPE_PUNCTUATOR;
@@ -289,6 +299,10 @@ void validate_identifiers(List* token_list){
         if(tk->type == TOKEN_TYPE_IDENTIFIER) {
             if(check_primitive(tk)) {
                 tk->type = TOKEN_TYPE_PRIMITIVE;
+            }
+
+            if(strcmp("return", tk->slice.ptr) == 0){
+                tk->type = TOKEN_TYPE_RETURN;
             }
         }
     }

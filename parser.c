@@ -88,9 +88,11 @@ int check_identifier_function(struct ScopeBlock* block, StringSlice identifier){
             //Could be
             //We can coerce to Declaration type
             Declaration* decl = (Declaration*)statement->statementData;
-
-            if(strcmp(decl->identifier.ptr, identifier.ptr) == 0){
-                return 1;
+            
+            if(decl->is_function){
+                if(strcmp(decl->identifier.ptr, identifier.ptr) == 0){
+                    return 1;
+                }
             }
         }
     }
@@ -196,6 +198,29 @@ void parse_token_program(struct ScopeBlock* block, List* token_list, size_t* idx
 
             list_push(block->statement_list, &statement);
             
+            break;
+        }
+
+        case TOKEN_TYPE_RETURN: {
+            StringSlice identifier = token->slice;
+
+            Expression* expr = (Expression*)calloc(1, sizeof(Expression));
+            expr->type = EXPRESSION_TYPE_GENERAL;
+            strcat(expr->buffer, identifier.ptr);
+            strcat(expr->buffer, " ");
+
+            Token* next_tok = get_next(token_list, idx);
+            while(next_tok->type != TOKEN_TYPE_TERMINATOR){
+                strcat(expr->buffer, next_tok->slice.ptr);
+                next_tok = get_next(token_list, idx);
+            }
+            (*idx)++;
+
+            Statement statement;
+            statement.type = STATEMENT_TYPE_EXPRESSION;
+            statement.statementData = expr;
+
+            list_push(block->statement_list, &statement);
             break;
         }
 
@@ -369,5 +394,6 @@ Program* parse(List* token_list){
         parse_token_program(&program->block, token_list, &idx);
     }
 
+    printf("AST Generated!\n");
     return program;
 }
