@@ -1,3 +1,8 @@
+//BY SUBMITTING THIS FILE TO CARMEN, I CERTIFY THAT I HAVE STRICTLY ADHERED
+//TO THE TENURES OF THE OHIO STATE UNIVERSITY’S ACADEMIC INTEGRITY POLICY
+//WITH RESPECT TO THIS ASSIGNMENT.
+
+
 /**
  * @file parser.h
  * @author Nathan Bourgeois (iridescentrosesfall@gmail.com)
@@ -11,6 +16,11 @@
 
 #include "parser.h"
 
+/**
+ * @brief Validates preprocessor instructions to remove AOT and JIT specifics and run EXE commands
+ * 
+ * @param token Preprocessor token to validate
+ */
 void validate_preprocessor(Token* token) {
     char* res1 = strstr(token->slice.ptr, "#ifaot");
     char* res2 = strstr(token->slice.ptr, "#ifjit");
@@ -46,11 +56,16 @@ void validate_preprocessor(Token* token) {
         strcat(token->slice.ptr, res);
         strcat(token->slice.ptr, "\"");
 
-        printf("%s\n", buffer);
         free(command);
     }
 }
 
+/**
+ * @brief Makes a preprocessor statement
+ * 
+ * @param list List of statements to add to
+ * @param token Token of the preprocessor statement
+ */
 void make_preprocessor(List* list, Token* token) {
     validate_preprocessor(token);
     Statement statement;
@@ -63,6 +78,15 @@ void make_preprocessor(List* list, Token* token) {
     list_push(list, &statement);
 }
 
+/**
+ * @brief Makes a variable declaration statement
+ * 
+ * @param list List of statements to add to
+ * @param identifier Slice of identifier
+ * @param type Type of identifier
+ * @param pointer If the declaration is a pointer
+ * @param extern If the declaration is extern
+ */
 void make_variable_declaration(List* list, StringSlice identifier, Type type, char pointer, char externf) {
     Statement statement;
     statement.type = STATEMENT_TYPE_DECLARATION;
@@ -78,6 +102,16 @@ void make_variable_declaration(List* list, StringSlice identifier, Type type, ch
     list_push(list, &statement);
 }
 
+/**
+ * @brief Makes a variable declaration statement
+ * 
+ * @param list List of statements to add to
+ * @param identifier Slice of identifier
+ * @param type Type of identifier
+ * @param pointer If the declaration is a pointer
+ * @param extern If the declaration is extern
+ * @param args If the declaration is a function - what are the arguments?
+ */
 void make_function_declaration(List* list, StringSlice identifier, Type type, char pointer, char externf, Arguments args) {
     Statement statement;
     statement.type = STATEMENT_TYPE_DECLARATION;
@@ -94,6 +128,16 @@ void make_function_declaration(List* list, StringSlice identifier, Type type, ch
     list_push(list, &statement);
 }
 
+/**
+ * @brief Makes a function definition
+ * 
+ * @param list List to add statement to
+ * @param identifier Name
+ * @param type Type
+ * @param pointer Is a pointer?
+ * @param args Arguments list
+ * @param statement_list Statements inside the block
+ */
 void make_function_definition(List* list, StringSlice identifier, Type type, char pointer, Arguments args, struct ScopeBlock* statement_list) {
     Statement statement;
     statement.type = STATEMENT_TYPE_DEFINITION;
@@ -110,6 +154,13 @@ void make_function_definition(List* list, StringSlice identifier, Type type, cha
     list_push(list, &statement);
 }
 
+/**
+ * @brief Checks if an identifier is a function
+ * 
+ * @param block Scoped Block to check from
+ * @param identifier Identifier to look for
+ * @return int 0 if cannot be found, 1 if could find and is a function
+ */
 int check_identifier_function(struct ScopeBlock* block, StringSlice identifier){
 
     for(size_t i = 0; i < block->statement_list->size; i++){
@@ -134,6 +185,12 @@ int check_identifier_function(struct ScopeBlock* block, StringSlice identifier){
     return 0;
 }
 
+/**
+ * @brief Get the type object
+ * 
+ * @param slice Slice for a type ID
+ * @return Type Type
+ */
 Type get_type(StringSlice slice){
     
     if(strcmp(slice.ptr, "U0") == 0){
@@ -170,6 +227,13 @@ Type get_type(StringSlice slice){
     return -1;
 }
 
+/**
+ * @brief Get the next object
+ * 
+ * @param token_list Token List
+ * @param idx Index to increments
+ * @return Token* Next token
+ */
 Token* get_next(List* token_list, size_t* idx){
     (*idx)++;
     Token* next_tok = list_at(token_list, *idx);
@@ -178,6 +242,15 @@ Token* get_next(List* token_list, size_t* idx){
     return next_tok;
 }
 
+/**
+ * @brief Parse tokens into a program scope block
+ * 
+ * This is an extremely complicated method.
+ * 
+ * @param block Block to process into
+ * @param token_list List of all tokens
+ * @param idx Index of current token 
+ */
 void parse_token_program(struct ScopeBlock* block, List* token_list, size_t* idx){
     Token* token = list_at(token_list, *idx);
 
@@ -407,6 +480,11 @@ void parse_token_program(struct ScopeBlock* block, List* token_list, size_t* idx
 }
 
 
+/**
+ * @brief Frees all memory associated to a program block
+ * 
+ * @param block Block to free
+ */
 void free_program(struct ScopeBlock* block){
 
     for(size_t i = 0; i < block->statement_list->size; i++){
@@ -433,6 +511,12 @@ void free_program(struct ScopeBlock* block){
                 break;
             }
 
+            case STATEMENT_TYPE_EXPRESSION:{
+                Expression* expr = (Expression*)st->statementData;
+                free(expr);
+                break;
+            }
+
             default: {
                 free(st->statementData);
                 break;
@@ -443,6 +527,9 @@ void free_program(struct ScopeBlock* block){
     list_delete(block->statement_list);
 }
 
+/**
+ * @brief See header
+ */
 Program* parse(List* token_list){
     Program* program = calloc(1, sizeof(Program));
     program->block.statement_list = list_new(sizeof(Statement), 32);

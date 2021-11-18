@@ -1,3 +1,7 @@
+//BY SUBMITTING THIS FILE TO CARMEN, I CERTIFY THAT I HAVE STRICTLY ADHERED
+//TO THE TENURES OF THE OHIO STATE UNIVERSITY’S ACADEMIC INTEGRITY POLICY
+//WITH RESPECT TO THIS ASSIGNMENT.
+
 /**
  * @file util.h
  * @author Nathan Bourgeois (iridescentrosesfall@gmail.com)
@@ -95,7 +99,7 @@ void list_push(List* list, void* data);
 void list_pop(List* list);
 
 /**
- * @brief 
+ * @brief Gets a member element of the list at idx returns NULL upon fail
  * 
  * @param list List to be read 
  * @param idx Index requested

@@ -1,3 +1,8 @@
+//BY SUBMITTING THIS FILE TO CARMEN, I CERTIFY THAT I HAVE STRICTLY ADHERED
+//TO THE TENURES OF THE OHIO STATE UNIVERSITY’S ACADEMIC INTEGRITY POLICY
+//WITH RESPECT TO THIS ASSIGNMENT.
+
+
 /**
  * @file parser.h
  * @author Nathan Bourgeois (iridescentrosesfall@gmail.com)
@@ -34,6 +39,10 @@ typedef struct{
     void* statementData;
 } Statement;
 
+/**
+ * @brief All Holy C types
+ * 
+ */
 typedef enum{
     TYPE_U0,
     TYPE_U8,
@@ -58,23 +67,41 @@ struct ScopeBlock{
     struct ScopeBlock* parent; //May be NULL
 };
 
+/**
+ * @brief Different types of expressions
+ * CALL expressions generate a default function call from implied text.
+ * PRINTF expressions generate PRINTF calls from implied text.
+ * GENERAL expressions are any type of expression.
+ */
 typedef enum{
     EXPRESSION_TYPE_GENERAL,
     EXPRESSION_TYPE_CALL,
     EXPRESSION_TYPE_PRINTF,
 }ExpressionType;
 
+/**
+ * @brief Expression object, comprised of a type, and a buffer to store the expression text
+ * 
+ */
 typedef struct{
     ExpressionType type;
     char buffer[256];
 } Expression;
 
+/**
+ * @brief Arguments object, contains arguments to a function as types, identifiers, and if certain types are pointers
+ * 
+ */
 typedef struct{
     Type types[16];
     char* identifiers[16];
     char pointer[16];
 } Arguments;
 
+/**
+ * @brief Declaration object which contains the type and identifier, if it is a point or a function, if it externally linked, and arguments if it is a function
+ * 
+ */
 typedef struct{
     StringSlice identifier;
     Type type;
@@ -84,6 +111,10 @@ typedef struct{
     Arguments args;
 } Declaration;
 
+/**
+ * @brief Definition object which contains the type and identifier, if it is a point or a function, if it externally linked, and arguments , also contains a codeblock
+ * 
+ */
 typedef struct{
     StringSlice identifier;
     Type type;
@@ -95,6 +126,10 @@ typedef struct{
     struct ScopeBlock* function_content;
 } Definition;
 
+/**
+ * @brief Preprocessor statements - largely just text
+ * 
+ */
 typedef struct{
     StringSlice text;
 } PreProcessor;

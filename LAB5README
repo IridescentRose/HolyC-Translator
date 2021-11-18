@@ -1,0 +1,35 @@
+BY SUBMITTING THIS FILE TO CARMEN, I CERTIFY THAT I HAVE STRICTLY ADHERED
+TO THE TENURES OF THE OHIO STATE UNIVERSITY’S ACADEMIC INTEGRITY POLICY
+WITH RESPECT TO THIS ASSIGNMENT.
+
+THIS IS THE README FILE FOR LAB 5.
+
+NATHAN BOURGEOIS
+
+This took over 20+ hours of consecutive coding and over 1600 lines of code - and I don't believe I could call this 100% finished.
+
+The hardest part was probably lexical analysis - it's at the point where there's still so much more that can be done.
+
+This lab translates HolyC, which is a variant of C made by Terry A. Davis, documented here (https://web.archive.org/web/20170325000321/http://www.templeos.org/Wb/Doc/HolyC.html)
+The program features a proper tokenization system which creates a list of accepted HolyC tokens and then sifts through the tokens in lexical analysis to form a basic AST representation.
+The AST representation is passed to the code generator in c_printer and prints the C output code to the file.
+The code generator can indeed reorder statements and will do so for the purpose of generating a C main function, which HolyC lacks.
+While this version supports only a limited subset of HolyC, within this subset you can do quite a lot already. Check out Tests 17-20. Test 17 is a basic program with functions. 
+Test 18 showcases using C libraries. Test 19 uses external linkage (even though printf is definitely defined). Test 20 shows a use case for #EXE{} described below.
+
+I could not have used the same unit tests from the Lab4. The system is far too complex for unit tests of such limited scope to make sense.
+Instead, tests invoke the program itself and the test runner validates that the exit code of a particular run is valid. 
+
+
+To invoke the program after compiling with make:
+
+> hc2c <input file> <output file>
+You can also just run hc2c and it will detect that you didn't enter a file and ask for I/O
+
+The input file is a simple HolyC file - there are quite a few examples in the tests folder. Note that the HolyC translator is missing proper detection for struct, enums, unions, and conditionals.
+You should at most be using functions and arithmetic. You can also run preprocessor statements like standard C. This includes a unique preprocessor directive called #EXE{ } which runs the terminal
+command placed in the brackets and returns the result of the terminal command as text to the program.
+
+For debugging this program, Valgrind was invaluable. Not only did it catch some basic issues like missing frees, but it also exposed underlying behavior like unsafe reads and writes. In particular
+it helped debug dynamic list code which was not properly being freed. This was an issue where pointers stored in structs that were copied into the dynamic list wouldn't be freed because nothing would
+sort into the list to free it. This led to the creation of free_tokens and free_program.

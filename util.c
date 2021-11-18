@@ -1,3 +1,8 @@
+//BY SUBMITTING THIS FILE TO CARMEN, I CERTIFY THAT I HAVE STRICTLY ADHERED
+//TO THE TENURES OF THE OHIO STATE UNIVERSITY’S ACADEMIC INTEGRITY POLICY
+//WITH RESPECT TO THIS ASSIGNMENT.
+
+
 /**
  * @file util.c
  * @author Nathan Bourgeois (iridescentrosesfall@gmail.com)
@@ -10,6 +15,12 @@
  */
 #include "util.h"
 
+/**
+ * @brief Duplicates a string and allocates memory for it
+ * 
+ * @param str1 String to be copied
+ * @return char* Copy of said string
+ */
 char* dupe_string(const char* str1) {
     /* TIL: Null Terminator is not included in strlen() and valgrind throws a fit. */
     char* res = calloc(strlen(str1) + 1, sizeof(char));
@@ -17,7 +28,14 @@ char* dupe_string(const char* str1) {
     return strcpy(res, str1);
 }
 
-
+/**
+ * @brief Produces a sliced version of a string
+ * 
+ * @param str String to be cut
+ * @param idx Starting cut index
+ * @param len Length of cut
+ * @return char* New string
+ */
 char* make_slice(const char* str, size_t idx, size_t len){
     char* res = calloc(len + 1, sizeof(char));
 

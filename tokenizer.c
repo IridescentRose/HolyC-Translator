@@ -1,3 +1,8 @@
+//BY SUBMITTING THIS FILE TO CARMEN, I CERTIFY THAT I HAVE STRICTLY ADHERED
+//TO THE TENURES OF THE OHIO STATE UNIVERSITY’S ACADEMIC INTEGRITY POLICY
+//WITH RESPECT TO THIS ASSIGNMENT.
+
+
 /**
  * @file tokenizer.c
  * @author Nathan Bourgeois (iridescentrosesfall@gmail.com)
@@ -107,6 +112,13 @@ Token extract_token_identifier(char* content, size_t* idx){
     return tk;
 }
 
+/**
+ * @brief Extracts any literal number for expressions.
+ * 
+ * @param content String to extract from
+ * @param idx Index pointer to increment
+ * @return Token to be returned
+ */
 Token extract_token_literal(char* content, size_t* idx){
     Token tk;
     tk.slice.len = 0;
@@ -152,7 +164,8 @@ Token extract_token_string(char* content, size_t* idx){
 }
 
 /**
- *
+ * @brief Loops through a content string to process tokens
+ * 
  * @param token_list List of tokens to create
  * @param content String to interpret
  */
@@ -236,6 +249,14 @@ void process_content(List* token_list, char* content){
                 if(idx + 1 < len){
                     if(content[idx] == content[idx+1]){
                         while(content[idx++] != '\n'){}
+                    }else if (content[idx+1] == '*') {
+                        idx++;
+                        
+                        printf("%ld\n", idx);
+                        while(!(content[idx] == '*' && content[idx + 1] == '/')){
+                            idx++;
+                        }
+                        idx += 2;
                     }else{
                         temp.type = TOKEN_TYPE_ARITHMETIC;
                         temp.slice.ptr = make_slice(content, idx++, 1);
@@ -263,6 +284,11 @@ void process_content(List* token_list, char* content){
     }
 }
 
+/**
+ * @brief Frees a token list specifically
+ * 
+ * @param token_list Token list to be freed
+ */
 void free_tokens(List* token_list) {
     for(size_t i = 0; i < token_list->size; i++){
         Token* tk = list_at(token_list, i);
@@ -270,16 +296,12 @@ void free_tokens(List* token_list) {
     }
 }
 
-void print_tokens(List* token_list) {
-    for(size_t i = 0; i < token_list->size; i++){
-        Token* tk = list_at(token_list, i);
-        
-        if(tk->type != 13){
-            printf("TOKEN %ld: { TYPE: %d, SLICE: {STR: %s, LEN: %ld}}\n", i, tk->type, tk->slice.ptr, tk->slice.len);
-        }
-    }
-}
-
+/**
+ * @brief Checks token against list of primitives
+ * 
+ * @param tk Token to be checked
+ * @return int 0 if not found, 1 if found
+ */
 int check_primitive(Token* tk){
     char* prims[10] = {"U0", "U8", "U16", "U32", "U64", "I8", "I16", "I32", "I64", "F64"};
 
@@ -292,25 +314,34 @@ int check_primitive(Token* tk){
     return 0;
 }
 
+/**
+ * @brief Validates a token list by scanning identifiers for significant token changes
+ * 
+ * @param token_list List of tokens to be checked
+ */
 void validate_identifiers(List* token_list){
     for(size_t i = 0; i < token_list->size; i++){
         Token* tk = list_at(token_list, i);
 
         if(tk->type == TOKEN_TYPE_IDENTIFIER) {
-            if(check_primitive(tk)) {
+            if(check_primitive(tk))
                 tk->type = TOKEN_TYPE_PRIMITIVE;
-            }
+            
 
-            if(strcmp("return", tk->slice.ptr) == 0){
+            if(strcmp("return", tk->slice.ptr) == 0)
                 tk->type = TOKEN_TYPE_RETURN;
-            }
-            if(strcmp("extern", tk->slice.ptr) == 0){
+            
+            if(strcmp("extern", tk->slice.ptr) == 0)
                 tk->type = TOKEN_TYPE_EXTERN;
-            }
+            
         }
     }
 }
 
+/**
+ * @brief See header
+ *
+ */
 List* tokenize(const char* filename){
     char* content = get_file_contents(filename);
     List* token_list = list_new(sizeof(Token), 1);
