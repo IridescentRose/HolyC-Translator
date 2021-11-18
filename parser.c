@@ -79,6 +79,28 @@ void make_function_definition(List* list, StringSlice identifier, Type type, cha
     list_push(list, &statement);
 }
 
+int check_identifier_function(struct ScopeBlock* block, StringSlice identifier){
+
+    for(size_t i = 0; i < block->statement_list->size; i++){
+        Statement* statement = (Statement*)list_at(block->statement_list, i);
+
+        if(statement->type == STATEMENT_TYPE_DEFINITION || statement->type == STATEMENT_TYPE_DECLARATION){
+            //Could be
+            //We can coerce to Declaration type
+            Declaration* decl = (Declaration*)statement->statementData;
+
+            if(strcmp(decl->identifier.ptr, identifier.ptr) == 0){
+                return 1;
+            }
+        }
+    }
+
+    if(block->parent){
+        return check_identifier_function(block->parent, identifier);
+    }
+    return 0;
+}
+
 Type get_type(StringSlice slice){
     
     if(strcmp(slice.ptr, "U0") == 0){
@@ -138,6 +160,69 @@ void parse_token_program(struct ScopeBlock* block, List* token_list, size_t* idx
             break;
         }
 
+        case TOKEN_TYPE_IDENTIFIER: {
+            StringSlice identifier = token->slice;
+
+            Expression* expr = (Expression*)calloc(1, sizeof(Expression));
+            strcat(expr->buffer, identifier.ptr);
+
+            Token* next_tok = get_next(token_list, idx);
+            
+            if(next_tok->type == TOKEN_TYPE_PUNCTUATOR) {
+                //Is in format of function call already - we can set as general
+                //TODO: make flag for default reordering
+                expr->type = EXPRESSION_TYPE_GENERAL;
+                while(next_tok->type != TOKEN_TYPE_TERMINATOR){
+                    strcat(expr->buffer, next_tok->slice.ptr);
+                    next_tok = get_next(token_list, idx);
+                }
+                (*idx)++;
+            } else if(check_identifier_function(block, identifier)) {
+                //Is a function call with default args
+                expr->type = EXPRESSION_TYPE_CALL;
+                (*idx)++;
+            } else {
+                expr->type = EXPRESSION_TYPE_GENERAL;
+                while(next_tok->type != TOKEN_TYPE_TERMINATOR){
+                    strcat(expr->buffer, next_tok->slice.ptr);
+                    next_tok = get_next(token_list, idx);
+                }
+                (*idx)++;
+            }
+
+            Statement statement;
+            statement.type = STATEMENT_TYPE_EXPRESSION;
+            statement.statementData = expr;
+
+            list_push(block->statement_list, &statement);
+            
+            break;
+        }
+
+        case TOKEN_TYPE_STRING: {
+            StringSlice identifier = token->slice;
+
+            Expression* expr = (Expression*)calloc(1, sizeof(Expression));
+            expr->type = EXPRESSION_TYPE_PRINTF;
+
+            strcat(expr->buffer, identifier.ptr);
+
+            Token* next_tok = get_next(token_list, idx);
+            while(next_tok->type != TOKEN_TYPE_TERMINATOR){
+                strcat(expr->buffer, next_tok->slice.ptr);
+                next_tok = get_next(token_list, idx);
+            }
+            (*idx)++;
+
+            Statement statement;
+            statement.type = STATEMENT_TYPE_EXPRESSION;
+            statement.statementData = expr;
+
+            list_push(block->statement_list, &statement);
+
+            break;
+        }
+
         case TOKEN_TYPE_PRIMITIVE: {
             //Upon receiving a primitive, we have to check what it is.
             Type type = get_type(token->slice);
@@ -169,8 +254,12 @@ void parse_token_program(struct ScopeBlock* block, List* token_list, size_t* idx
 
                 int count = 0;
 
-                while(next_tok->type != TOKEN_TYPE_PUNCTUATOR && next_tok->slice.ptr[0] != ')'){
+                while(next_tok->slice.ptr[0] != ')'){
                     //Gather args data
+
+                    if(next_tok->type == TOKEN_TYPE_PUNCTUATOR){
+                        next_tok = get_next(token_list, idx);
+                    }
 
                     if(next_tok->type == TOKEN_TYPE_PRIMITIVE){
                         args.types[count] = get_type(next_tok->slice);
@@ -180,6 +269,12 @@ void parse_token_program(struct ScopeBlock* block, List* token_list, size_t* idx
 
                     next_tok = get_next(token_list, idx);
 
+                    if(next_tok->type == TOKEN_TYPE_ARITHMETIC && next_tok->slice.ptr[0] == '*'){
+                        //Pointer
+                        args.pointer[count] = 1;
+                        next_tok = get_next(token_list, idx);
+                    }
+
                     //Next type can either be an ID or a punctuator
                     if(next_tok->type == TOKEN_TYPE_IDENTIFIER){
                         args.identifiers[count++] = next_tok->slice.ptr;
@@ -187,6 +282,7 @@ void parse_token_program(struct ScopeBlock* block, List* token_list, size_t* idx
                     } else {
                         args.identifiers[count++] = NULL;
                     }
+
                 }
 
                 next_tok = get_next(token_list, idx);
@@ -221,7 +317,7 @@ void parse_token_program(struct ScopeBlock* block, List* token_list, size_t* idx
         }
 
         default: {
-            CHECK_FAILED("BAD TOKEN %d!\n", token->type);
+            CHECK_FAILED("BAD TOKEN %d %s %ld!\n", token->type, token->slice.ptr, (long)(*idx));
             break;
         }
     }

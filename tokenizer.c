@@ -107,6 +107,28 @@ Token extract_token_identifier(char* content, size_t* idx){
     return tk;
 }
 
+Token extract_token_literal(char* content, size_t* idx){
+    Token tk;
+    tk.slice.len = 0;
+    tk.slice.ptr = 0;
+    tk.type = TOKEN_TYPE_IMMEDIATE;
+
+    while(1){
+        char s = content[tk.slice.len + *idx];
+
+        if(!((s >= '0' && s <= '9') || s == '.')){
+            break;
+        }else{
+            tk.slice.len++;
+        }
+    }
+    
+    tk.slice.ptr = make_slice(content, *idx, tk.slice.len);
+
+    *idx += tk.slice.len;
+    return tk;
+}
+
 /**
  * @brief Extract a Token for a string literal.
  * 
@@ -180,8 +202,9 @@ void process_content(List* token_list, char* content){
                 break;
             }
 
-            //TODO: MORE ARITHMETIC
-            //TODO: CHECK PTR VS MULT IN LEXICAL ANALYSIS / PARSING
+            case '+':
+            case '-':
+            case '%': 
             case '*': {
                 temp.type = TOKEN_TYPE_ARITHMETIC;
                 temp.slice.ptr = make_slice(content, idx++, 1);
@@ -204,7 +227,10 @@ void process_content(List* token_list, char* content){
                     if(content[idx] == content[idx+1]){
                         while(content[idx++] != '\n'){}
                     }else{
-                        CHECK_FAILED("UNHANDLED %c %d\n", content[idx], (int)content[idx]);
+                        temp.type = TOKEN_TYPE_ARITHMETIC;
+                        temp.slice.ptr = make_slice(content, idx++, 1);
+                        temp.slice.len = 1;
+                        list_push(token_list, &temp);
                     }
                 }
                 break;
@@ -213,6 +239,9 @@ void process_content(List* token_list, char* content){
             default: {
                 if( (content[idx] >= 'a' && content[idx] <= 'z') || (content[idx] >= 'A' && content[idx] <= 'Z') ){
                     temp = extract_token_identifier(content, &idx);
+                    list_push(token_list, &temp);
+                } else if((content[idx] >= '0' && content[idx] <= '9')) {
+                    temp = extract_token_literal(content, &idx);
                     list_push(token_list, &temp);
                 } else {
                     CHECK_FAILED("UNHANDLED %c %d\n", content[idx], (int)content[idx]);

@@ -58,14 +58,21 @@ struct ScopeBlock{
     struct ScopeBlock* parent; //May be NULL
 };
 
+typedef enum{
+    EXPRESSION_TYPE_GENERAL,
+    EXPRESSION_TYPE_CALL,
+    EXPRESSION_TYPE_PRINTF,
+}ExpressionType;
+
 typedef struct{
-    Type type;
-    void* data;
+    ExpressionType type;
+    char buffer[256];
 } Expression;
 
 typedef struct{
     Type types[16];
     char* identifiers[16];
+    char pointer[16];
 } Arguments;
 
 typedef struct{
