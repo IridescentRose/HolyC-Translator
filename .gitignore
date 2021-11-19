@@ -51,8 +51,7 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-hc2c
-tester
+bin
 .vscode
 out
 vgcore.*
