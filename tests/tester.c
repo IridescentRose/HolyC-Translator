@@ -11,7 +11,7 @@ int main(){
         char buffer1[64];
         char buffer2[128];
         sprintf(buffer1, "tests/test%d.hc", i);
-        sprintf(buffer2, "./hc2c %s out/result%d.c", buffer1, i);
+        sprintf(buffer2, "bin/hc2c %s out/result%d.c", buffer1, i);
         
         FILE* fp = fopen(buffer1, "r");
 

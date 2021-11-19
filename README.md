@@ -14,7 +14,7 @@ However, if one were to miss providing arguments, the translator will prompt you
 
 ## Why?
 
-Holy C is obviously the best programming language, meant to follow the lords wills and programming desires. The language was created by the (in)famous Terry A. Davis who recently passed away in 2018. As a tribute to Terry, it would be great to attempt to honor him with a more portable HolyC.
+Holy C is obviously the best programming language, meant to follow the lord's will. The language was created by the (in)famous Terry A. Davis who recently passed away in 2018. As a tribute to Terry, it would be great to attempt to honor him with a more portable HolyC so that his glorious creation can find some more use.
 
 ## Specification and Limitation
 

@@ -52,6 +52,7 @@ Mkfile.old
 dkms.conf
 
 hc2c
+tester
 .vscode
 out
 vgcore.*
