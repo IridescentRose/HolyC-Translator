@@ -10,8 +10,6 @@ The translator can be simply used as follows:
 > hc2c myFile.hc
 ```
 
-However, if one were to miss providing arguments, the translator will prompt you to enter the file name of what you wish to translate as a failsafe. The program will error out if you do happen to provide an invalid or missing file.
-
 ## Why?
 
 Holy C is obviously the best programming language, meant to follow the lord's will. The language was created by the (in)famous Terry A. Davis who recently passed away in 2018. As a tribute to Terry, it would be great to attempt to honor him with a more portable HolyC so that his glorious creation can find some more use.
