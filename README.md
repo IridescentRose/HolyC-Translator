@@ -16,4 +16,30 @@ Holy C is obviously the best programming language, meant to follow the lord's wi
 
 ## Specification and Limitation
 
-The translator attempts to imitate or reproduce the behavior defined by the specifications of [HolyC](https://web.archive.org/web/20170325000321/http://www.templeos.org/Wb/Doc/HolyC.html) as documented here. However there are some critical limitations that a translator cannot do compared to a full on compiler. One of which is JIT / AOT mode as described by the original HolyC specification. The `#ifaot` and `#ifjit` preprocessor directives will be automatically excluded from the program. The #exe directive executes and records the results of commands executed in the shell. Similarly `#help_index` and `#help_file` will not be available. Another limitation is the reinterpreting of HolyC's ASM specification due to time and complexity restraints.
+The translator attempts to imitate or reproduce the behavior defined by the specifications of [HolyC](https://web.archive.org/web/20170325000321/http://www.templeos.org/Wb/Doc/HolyC.html) as documented. However there are some critical limitations that a translator cannot do compared to a full on compiler. 
+
+One of these limitations is JIT / AOT mode as described by the original HolyC specification. The `#ifaot` and `#ifjit` preprocessor directives will be changed to `#if 0`. 
+
+The #exe directive executes and records the results of commands executed in the shell and encapsulates the output in quotations - which may not be preferred for some data.
+
+Similarly `#help_index` and `#help_file` will not be available. These statements are completely deleted.
+
+One other such limitation is re-interpretting the ASM specification.
+
+## To-Do
+
+- [ ] Tokenize Keywords in a single pass
+- [ ] Tokenize all valid ASCII-based symbols
+- [ ] Token Metadata for error reporting (line position & cursor position)
+- [ ] Reorganize Tokenizer
+- [ ] Reorganize Parser
+- [ ] Parser can parse conditionals (if, else if, else, switch, while)
+- [ ] Code generator can emit conditionals
+- [ ] Parser can parse struct (class?)
+- [ ] Code generator can emit structs/classes
+- [ ] Parser can parse uniforms
+- [ ] Code generator can emit uniforms
+- [ ] Code generator can re-order function parameters (defaults)
+- [ ] Parser type checking
+- [ ] Parse sizeof & U0 0-length type semantics
+
