@@ -74,6 +74,11 @@ Token extract_token_preprocessor(char* content, size_t* idx){
 
     tk.slice.ptr = make_slice(content, *idx, tk.slice.len);
 
+    if(strstr(tk.slice.ptr, "#help_file") || strstr(tk.slice.ptr, "#help_index")){
+        free(tk.slice.ptr);
+        tk.slice.ptr = NULL;
+    }
+
     *idx += tk.slice.len;
     return tk;
 }
@@ -180,7 +185,9 @@ void process_content(List* token_list, char* content){
 
             case '#': {
                 temp = extract_token_preprocessor(content, &idx);
-                list_push(token_list, &temp);
+
+                if(temp.slice.ptr)
+                    list_push(token_list, &temp);
                 break;
             }
             
