@@ -158,6 +158,187 @@ void process_content(List* token_list, char* content){
     }
 }
 
+void comb_tok(Token* a, Token* b){
+    char tmp = a->slice.ptr[0];
+    a->slice.ptr = calloc(sizeof(char), 3);
+    a->slice.ptr[0] = tmp;
+    a->slice.ptr[1] = b->slice.ptr[0];
+    a->slice.ptr[2] = 0;
+    a->slice.len = 2;
+}
+
+void comb_tok3(Token* a, Token* b, Token* c){
+    char tmp = a->slice.ptr[0];
+    a->slice.ptr = calloc(sizeof(char), 4);
+    a->slice.ptr[0] = tmp;
+    a->slice.ptr[1] = b->slice.ptr[0];
+    a->slice.ptr[2] = c->slice.ptr[0];
+    a->slice.ptr[3] = 0;
+    a->slice.len = 2;
+}
+
+/**
+ * @brief Combines tokens IF they might have a secondary form (+= <=) for example
+ * 
+ * @param token_list List of tokens to process
+ */
+List* combine_tokens(List* token_list) {
+    size_t idx = 0;
+    List* new_list = list_new(sizeof(Token), 1);
+
+    while(idx < token_list->size) {
+        Token* token = list_at(token_list, idx);
+        char* tmp = token->slice.ptr;
+
+        switch(token->type) {
+
+            case TOKEN_TYPE_LOGIC: {
+                Token* next_token = list_at(token_list, idx + 1);
+                if(next_token){
+                    if(next_token->type == TOKEN_TYPE_ASSIGNMENT){
+                        comb_tok(token, next_token);
+                        token->type = TOKEN_TYPE_RELATION;
+                        list_push(new_list, token);
+                        idx++;
+                    }else{
+                        token->slice.ptr = dupe_string(token->slice.ptr);
+                        list_push(new_list, token);
+                    }
+                }else{
+                    token->slice.ptr = dupe_string(token->slice.ptr);
+                    list_push(new_list, token);
+                }
+
+                break;
+            }
+
+            case TOKEN_TYPE_RELATION: {
+                Token* next_token = list_at(token_list, idx + 1);
+                if(next_token){
+                    if(next_token->type == TOKEN_TYPE_ASSIGNMENT){
+                        //<= >=
+                        comb_tok(token, next_token);
+                        token->type = TOKEN_TYPE_RELATION;
+                        list_push(new_list, token);
+                        idx++;
+                    }else if(next_token->type == TOKEN_TYPE_RELATION){
+                        //<< >>
+
+                        Token* next_next_token = list_at(token_list, idx + 2);
+                        if(next_next_token) {
+                            if(next_next_token->type == TOKEN_TYPE_ASSIGNMENT) {
+                                //<<= >>=
+                                comb_tok3(token, next_token, next_next_token);
+                                token->type = TOKEN_TYPE_ASSIGNMENT;
+                                list_push(new_list, token);
+                                idx += 2;
+                            } else {
+                                //<< >>
+                                comb_tok(token, next_token);
+                                token->type = TOKEN_TYPE_BITWISE;
+                                list_push(new_list, token);
+                                idx++;
+                            }
+                        } else {
+                            //<< >>
+                            comb_tok(token, next_token);
+                            token->type = TOKEN_TYPE_BITWISE;
+                            list_push(new_list, token);
+                            idx++;
+                        }
+                    }
+                }else{
+                    token->slice.ptr = dupe_string(token->slice.ptr);
+                    list_push(new_list, token);
+                }
+
+                break;
+            }
+
+            case TOKEN_TYPE_ASSIGNMENT: {
+                
+                Token* next_token = list_at(token_list, idx + 1);
+                if(next_token){
+                    if(next_token->type == TOKEN_TYPE_ASSIGNMENT){ // ==
+                        comb_tok(token, next_token);
+                        token->type = TOKEN_TYPE_RELATION;
+                        list_push(new_list, token);
+                        idx++;
+                    }else{
+                        token->slice.ptr = dupe_string(token->slice.ptr);
+                        list_push(new_list, token);
+                    }
+                }else{
+                    token->slice.ptr = dupe_string(token->slice.ptr);
+                    list_push(new_list, token);
+                }
+
+                break;
+            }
+
+            case TOKEN_TYPE_ARITHMETIC: {
+
+                Token* next_token = list_at(token_list, idx + 1);
+                if(next_token){
+                    if(next_token->type == TOKEN_TYPE_ASSIGNMENT && next_token->slice.ptr[0] != '%'){ //+= -= *= /=
+                        comb_tok(token, next_token);
+                        token->type = TOKEN_TYPE_ASSIGNMENT;
+                        list_push(new_list, token);
+                        idx++;
+                    }else{
+                        token->slice.ptr = dupe_string(token->slice.ptr);
+                        list_push(new_list, token);
+                    }
+                }else{
+                    token->slice.ptr = dupe_string(token->slice.ptr);
+                    list_push(new_list, token);
+                }
+
+                break;
+            }
+
+            case TOKEN_TYPE_BITWISE: {
+
+                Token* next_token = list_at(token_list, idx + 1);
+                if(next_token){
+                    if(next_token->type == TOKEN_TYPE_ASSIGNMENT){ //&= |= ^=
+                        comb_tok(token, next_token);
+                        token->type = TOKEN_TYPE_ASSIGNMENT;
+                        list_push(new_list, token);
+                        idx++;
+                    } else if(next_token->type == TOKEN_TYPE_BITWISE && next_token->slice.ptr[0] != '~' && next_token->slice.ptr[0] != '^'){ //&& ||
+                        comb_tok(token, next_token);
+                        token->type = TOKEN_TYPE_LOGIC;
+                        list_push(new_list, token);
+                        idx++;
+                    } else {
+                        token->slice.ptr = dupe_string(token->slice.ptr);
+                        list_push(new_list, token);
+                    }
+                }else{
+                    token->slice.ptr = dupe_string(token->slice.ptr);
+                    list_push(new_list, token);
+                }
+
+                break;
+            }
+
+            default: {
+                token->slice.ptr = dupe_string(token->slice.ptr);
+                list_push(new_list, token);
+                break;
+            }
+        }
+
+        token->slice.ptr = tmp;
+        idx++;
+    }
+
+    free_tokens(token_list);
+    list_delete(token_list);
+    return new_list;
+}
+
 List* tokenize(const char* filename){
     char* content = get_file_contents(filename);
     List* token_list = list_new(sizeof(Token), 1);
@@ -166,6 +347,8 @@ List* tokenize(const char* filename){
     free(content);
     
     printf("Tokenizer: Complete, %ld Tokens Generated.\n", token_list->size);
+
+    token_list = combine_tokens(token_list);
     return token_list;
 }
 

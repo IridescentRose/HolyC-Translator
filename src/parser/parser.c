@@ -288,11 +288,14 @@ void parse_token_program(struct ScopeBlock* block, List* token_list, size_t* idx
                     next_tok = get_next(token_list, idx);
                 }
 
+                printf("%s\n", expr->buffer);
                 Statement statement;
                 statement.type = STATEMENT_TYPE_EXPRESSION;
                 statement.statementData = expr;
 
                 list_push(block->statement_list, &statement);
+            } else {
+                CHECK_FAILED("%s\n", next_tok->slice.ptr);
             }
             (*idx)++;
 

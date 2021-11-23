@@ -47,6 +47,7 @@ int main(int argc, char** argv){
     free_program(&program->block);
     free(program);
     free_tokens(token_list);
+    list_delete(token_list);
     free(g_input_name);
     free(g_output_name);
 
