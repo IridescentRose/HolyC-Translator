@@ -301,6 +301,7 @@ void parse_token_program(struct ScopeBlock* block, List* token_list, size_t* idx
             break;
         }
 
+        /*
         case TOKEN_TYPE_RETURN: {
             StringSlice identifier = token->slice;
 
@@ -322,7 +323,7 @@ void parse_token_program(struct ScopeBlock* block, List* token_list, size_t* idx
 
             list_push(block->statement_list, &statement);
             break;
-        }
+        }*/
 
         case TOKEN_TYPE_STRING: {
             StringSlice identifier = token->slice;
@@ -348,10 +349,12 @@ void parse_token_program(struct ScopeBlock* block, List* token_list, size_t* idx
             break;
         }
 
+        /*
         case TOKEN_TYPE_EXTERN:
             token = get_next(token_list, idx);
             externf = 1;
             __attribute__ ((fallthrough)); //Explicit fallthrough
+        */
         case TOKEN_TYPE_PRIMITIVE: {
             //Upon receiving a primitive, we have to check what it is.
             Type type = get_type(token->slice);
