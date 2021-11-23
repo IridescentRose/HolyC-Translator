@@ -7,7 +7,7 @@
 
 The translator can be simply used as follows:
 ```
-> hc2c myFile.hc
+> hc2c myFile.hc output.c
 ```
 
 ## Why?
