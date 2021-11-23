@@ -1,7 +1,7 @@
 /**
- * @file file_util.h
+ * @file extractor.h
  * @author Nathan Bourgeois (iridescentrosesfall@gmail.com)
- * @brief File Utils for tokenizer
+ * @brief Token extractor
  * @version 1.0
  * @date 2021-11-23
  * 

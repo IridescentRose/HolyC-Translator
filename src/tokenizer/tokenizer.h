@@ -12,6 +12,9 @@
 #include "../util.h"
 #include "file_util.h"
 
+/**
+ * @brief Token types
+ */
 typedef enum{
     TOKEN_TYPE_TERMINATOR   = 0,    /* ; */
     TOKEN_TYPE_PUNCTUATOR   = 1,    /* ( ) , . [ ] */
@@ -30,6 +33,9 @@ typedef enum{
     TOKEN_TYPE_IDENTIFIER   = 14    /* Identifier string */
 } TokenType;
 
+/**
+ * @brief Keyword types
+ */
 typedef enum{
     KEYWORD_TYPE_INVALID   = 0,
     KEYWORD_TYPE_SWITCH    = 1,
@@ -74,8 +80,6 @@ typedef struct{
     int line;
     int cursor;
 } Token;
-
-
 
 /**
  * @brief Tokenizes a file into a list of tokens

@@ -1,3 +1,13 @@
+/**
+ * @file file_util.c
+ * @author Nathan Bourgeois (iridescentrosesfall@gmail.com)
+ * @brief File utilities for tokenization
+ * @version 1.0
+ * @date 2021-11-23
+ * 
+ * @copyright Copyright (c) 2021
+ * 
+ */
 #include "file_util.h"
 
 /**

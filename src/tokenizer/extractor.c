@@ -1,3 +1,13 @@
+/**
+ * @file extractor.c
+ * @author Nathan Bourgeois (iridescentrosesfall@gmail.com)
+ * @brief Token extractor
+ * @version 1.0
+ * @date 2021-11-23
+ * 
+ * @copyright Copyright (c) 2021
+ * 
+ */
 #include "extractor.h"
 
 Token extract_token_preprocessor(char* content, size_t* idx){
