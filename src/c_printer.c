@@ -160,6 +160,7 @@ void emit_statement_block(FILE* fp, struct ScopeBlock* block, int tab_count){
     for(int i = 0; i < tab_count; i++){
         fprintf(fp, "\t");
     }
+
     for(size_t i = 0; i < block->statement_list->size; i++){
         Statement* statement = list_at(block->statement_list, i);
 
@@ -175,11 +176,11 @@ void emit_statement_block(FILE* fp, struct ScopeBlock* block, int tab_count){
             }
             
             case STATEMENT_TYPE_EXPRESSION: {
-                if(block->parent == NULL){
+                if(block->parent == NULL)
                     list_push(idx_list, &i);
-                } else {
+                else
                     emit_expression(fp, (Expression*)statement->statementData);
-                }
+                
                 break;
             }
 
@@ -189,7 +190,7 @@ void emit_statement_block(FILE* fp, struct ScopeBlock* block, int tab_count){
             }
         
             default: {
-                CHECK_FAILED("INVALID STATEMENT TYPE: %d", statement->type);
+                CHECK_FAILED("Error: Unknown Statement in Code Generation! Statement type %d!\n", statement->type);
                 break;
             }
         }
@@ -227,7 +228,7 @@ void emit_main(FILE* fp, struct ScopeBlock* block){
  */
 void emit_c(Program* program, const char* filename){
     FILE* fp = fopen(filename, "w");
-    CHECK_NOT_NULL(fp, "Could not access output file!");
+    CHECK_NOT_NULL(fp, "Error: Code Generator could not access output file!");
 
     idx_list = list_new(sizeof(int), 32);
 
@@ -239,5 +240,5 @@ void emit_c(Program* program, const char* filename){
 
     fclose(fp);
 
-    printf("Done!\n\n");
+    printf("Code Generator: Output successful in file %s\n\n", filename);
 }

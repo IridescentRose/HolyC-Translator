@@ -1,7 +1,7 @@
 all:
 	@mkdir -p bin
 	@mkdir -p out
-	@gcc -Wall -Wextra -Werror -std=gnu99 -pedantic -g -O2 src/*.c src/tokenizer/*.c -o bin/hc2c
+	@gcc -Wall -Wextra -Werror -std=gnu99 -pedantic -g -O2 src/*.c src/tokenizer/*.c src/parser/*.c -o bin/hc2c
 
 clean:
 	@rm -rf bin

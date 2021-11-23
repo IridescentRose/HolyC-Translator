@@ -9,7 +9,7 @@
  * 
  */
 #pragma once
-#include "parser.h"
+#include "parser/parser.h"
 
 /**
  * @brief Emits C code to a file given a program

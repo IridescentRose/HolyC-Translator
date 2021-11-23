@@ -33,8 +33,8 @@ One other such limitation is re-interpretting the ASM specification.
 - [x] Tokenize all valid ASCII-based symbols
 - [x] Token Metadata for error reporting (line position & cursor position)
 - [x] Reorganize Tokenizer
+- [x] Parser error handling improvements
 - [ ] Reorganize Parser
-- [ ] Parser error handling
 - [ ] Parser can parse conditionals (if, else if, else, switch, while)
 - [ ] Code generator can emit conditionals
 - [ ] Parser can parse struct (class?)

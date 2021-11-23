@@ -9,7 +9,7 @@
  * 
  */
 #pragma once
-#include "tokenizer/tokenizer.h"
+#include "../tokenizer/tokenizer.h"
 
 /**
  * @brief Statements are comprised of 3 types: Declaration, Definition, and Expressions. 
@@ -137,5 +137,12 @@ typedef struct{
     struct ScopeBlock block;
 }Program;
 
-void free_program(struct ScopeBlock* program);
 Program* parse(List* token_list);
+
+
+/**
+ * @brief Frees a given Scoped Block
+ * 
+ * @param program Scope Block to free
+ */
+void free_program(struct ScopeBlock* program);

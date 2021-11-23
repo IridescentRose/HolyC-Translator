@@ -165,7 +165,7 @@ List* tokenize(const char* filename){
     process_content(token_list, content);
     free(content);
     
-    printf("Tokenization Complete: %ld Tokens Generated.\n", token_list->size);
+    printf("Tokenizer: Complete, %ld Tokens Generated.\n", token_list->size);
     return token_list;
 }
 
