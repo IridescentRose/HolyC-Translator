@@ -9,7 +9,8 @@
  * 
  */
 #pragma once
-#include "util.h"
+#include "../util.h"
+#include "file_util.h"
 
 typedef enum{
     TOKEN_TYPE_TERMINATOR   = 0,    /* Literally just semicolon */
@@ -46,16 +47,20 @@ typedef struct{
 typedef struct{
     TokenType type;
     StringSlice slice;
+    int line;
+    int cursor;
 } Token;
 
-/**
- * @brief A function to free tokens from a given list.
- * @param token_list A list of tokens.
- */
-void free_tokens(List* token_list);
+
 
 /**
  * @brief Tokenizes a file into a list of tokens
  * @param filename File to tokenize
  */
 List* tokenize(const char* filename);
+
+/**
+ * @brief A function to free tokens from a given list.
+ * @param token_list A list of tokens.
+ */
+void free_tokens(List* token_list);

@@ -9,7 +9,7 @@
  * 
  */
 #pragma once
-#include "tokenizer.h"
+#include "tokenizer/tokenizer.h"
 
 /**
  * @brief Statements are comprised of 3 types: Declaration, Definition, and Expressions. 

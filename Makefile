@@ -1,8 +1,11 @@
 all:
-	@gcc -Wall -Wextra -Werror -std=gnu99 -pedantic -g -O2 src/*.c -o bin/hc2c
+	@mkdir -p bin
+	@mkdir -p out
+	@gcc -Wall -Wextra -Werror -std=gnu99 -pedantic -g -O2 src/*.c src/tokenizer/*.c -o bin/hc2c
 
 clean:
-	@rm -f hc2c
+	@rm -rf bin
+	@rm -rf out
 
 test: all
 	@gcc -Wall -Wextra -Werror -std=gnu99 -pedantic -g -O2 tests/tester.c -o bin/tester && bin/tester
