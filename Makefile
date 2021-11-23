@@ -1,14 +1,14 @@
 all:
 	@mkdir -p bin
 	@mkdir -p out
-	@gcc -Wall -Wextra -Werror -std=gnu99 -pedantic -g -O2 src/*.c src/tokenizer/*.c src/parser/*.c -o bin/hc2c
+	@$(CC) -Wall -Wextra -Werror -std=gnu99 -pedantic -g -O2 src/*.c src/tokenizer/*.c src/parser/*.c -o bin/hc2c
 
 clean:
 	@rm -rf bin
 	@rm -rf out
 
 test: all
-	@gcc -Wall -Wextra -Werror -std=gnu99 -pedantic -g -O2 tests/tester.c -o bin/tester && bin/tester
+	@$(CC) -Wall -Wextra -Werror -std=gnu99 -pedantic -g -O2 tests/tester.c -o bin/tester && bin/tester
 
 
 valgrind:

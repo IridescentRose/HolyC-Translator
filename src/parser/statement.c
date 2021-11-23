@@ -56,3 +56,4 @@ void make_function_definition(List* list, StringSlice identifier, Type type, cha
     statement.statementData = def;
     list_push(list, &statement);
 }
+
