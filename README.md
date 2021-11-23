@@ -28,7 +28,7 @@ One other such limitation is re-interpretting the ASM specification.
 
 ## To-Do
 
-- [ ] Tokenize Keywords in a single pass
+- [x] Tokenize Keywords in a single pass
 - [ ] Tokenize Joint Symbols (+=) as a secondary pass
 - [x] Tokenize all valid ASCII-based symbols
 - [x] Token Metadata for error reporting (line position & cursor position)
