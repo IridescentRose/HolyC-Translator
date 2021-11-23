@@ -49,6 +49,8 @@ void process_content(List* token_list, char* content){
 
             case '#': {
                 extract_token_preprocessor(content, &idx, line, &cursor, token_list);
+                line += 1;
+                cursor = 0;
                 break;
             }
             
@@ -120,12 +122,17 @@ void process_content(List* token_list, char* content){
 
             case '/': {
                 if(idx + 1 < len){
-                    if(content[idx] == content[idx+1])
-                        while(content[idx++] != '\n'){}
-                    else if (content[idx+1] == '*') {
+                    if(content[idx] == content[idx+1]){
+                        while(content[idx++] != '\n'){cursor++;}
+                        cursor++;
+                    }else if (content[idx+1] == '*') {
                         idx++;
-                        while(!(content[idx] == '*' && content[idx + 1] == '/'))
+                        cursor++;
+                        while(!(content[idx] == '*' && content[idx + 1] == '/')){
                             idx++;
+                            cursor++;
+                        }
+                        cursor += 2;
                         idx += 2;
                     }else{
                         extract_token_single_char(content, &idx, TOKEN_TYPE_ARITHMETIC, line, &cursor, token_list);
