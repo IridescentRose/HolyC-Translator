@@ -10,27 +10,6 @@
  */
 #include "extractor.h"
 
-Token extract_token_preprocessor(char* content, size_t* idx){
-    Token tk;
-    tk.slice.len = 0;
-    tk.slice.ptr = 0;
-    tk.type = TOKEN_TYPE_PREPROCESSOR;
-    size_t len = strlen(content);
-
-    for(;content[tk.slice.len + *idx] != '\n' && (tk.slice.len + *idx) < len; tk.slice.len++){}
-
-    tk.slice.ptr = make_slice(content, *idx, tk.slice.len);
-
-    if(strstr(tk.slice.ptr, "#help_file") || strstr(tk.slice.ptr, "#help_index")){
-        free(tk.slice.ptr);
-        tk.slice.ptr = NULL;
-    }
-
-    *idx += tk.slice.len;
-    return tk;
-}
-
-
 /**
  * @brief Checks token against list of primitives
  * 
@@ -68,7 +47,45 @@ int check_keyword(Token* tk){
     return 0;
 }
 
-Token extract_token_identifier(char* content, size_t* idx){
+void extract_token_single_char(char* content, size_t* idx, TokenType type, int line, int* cur, List* token_list){
+    Token tk;
+    tk.slice.ptr = make_slice(content, (*idx)++, 1);
+    tk.slice.len = 1;
+    tk.type = type;
+    tk.line = line;
+    tk.cursor = (*cur)++;
+
+    list_push(token_list, &tk);
+}
+
+void extract_token_preprocessor(char* content, size_t* idx, int line, int* cur, List* token_list){
+    Token tk;
+    tk.slice.len = 0;
+    tk.slice.ptr = 0;
+    tk.type = TOKEN_TYPE_PREPROCESSOR;
+    size_t len = strlen(content);
+
+    for(;content[tk.slice.len + *idx] != '\n' && (tk.slice.len + *idx) < len; tk.slice.len++){}
+
+    tk.slice.ptr = make_slice(content, *idx, tk.slice.len);
+
+    if(strstr(tk.slice.ptr, "#help_file") || strstr(tk.slice.ptr, "#help_index")){
+        free(tk.slice.ptr);
+        tk.slice.ptr = NULL;
+    }
+
+    tk.line = line;
+    tk.cursor = (*cur);
+
+    (*idx) += tk.slice.len;
+    (*cur) += tk.slice.len;
+
+    if(tk.slice.ptr){
+        list_push(token_list, &tk);
+    }
+}
+
+Token extract_token_identifier(char* content, size_t* idx, int line, int* cur){
     Token tk;
     tk.slice.len = 0;
     tk.slice.ptr = 0;
@@ -92,11 +109,16 @@ Token extract_token_identifier(char* content, size_t* idx){
     if(check_keyword(&tk))
         tk.type = TOKEN_TYPE_KEYWORD;
 
-    *idx += tk.slice.len;
+    tk.line = line;
+    tk.cursor = (*cur);
+
+    (*idx) += tk.slice.len;
+    (*cur) += tk.slice.len;
+    
     return tk;
 }
 
-Token extract_token_literal(char* content, size_t* idx){
+Token extract_token_literal(char* content, size_t* idx, int line, int* cur){
     Token tk;
     tk.slice.len = 0;
     tk.slice.ptr = 0;
@@ -114,11 +136,16 @@ Token extract_token_literal(char* content, size_t* idx){
     
     tk.slice.ptr = make_slice(content, *idx, tk.slice.len);
 
-    *idx += tk.slice.len;
+    tk.line = line;
+    tk.cursor = (*cur);
+
+    (*idx) += tk.slice.len;
+    (*cur) += tk.slice.len;
+    
     return tk;
 }
 
-Token extract_token_string(char* content, size_t* idx){
+void extract_token_string(char* content, size_t* idx, int line, int* cur, List* token_list){
     Token tk;
     tk.slice.len = 1;
     tk.slice.ptr = 0;
@@ -129,6 +156,12 @@ Token extract_token_string(char* content, size_t* idx){
 
     tk.slice.ptr = make_slice(content, *idx, tk.slice.len);
 
-    *idx += tk.slice.len;
-    return tk;
+    
+    tk.line = line;
+    tk.cursor = (*cur);
+
+    (*idx) += tk.slice.len;
+    (*cur) += tk.slice.len;
+    
+    list_push(token_list, &tk);
 }

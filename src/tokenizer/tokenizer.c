@@ -48,47 +48,23 @@ void process_content(List* token_list, char* content){
             }
 
             case '#': {
-                temp = extract_token_preprocessor(content, &idx);
-                temp.line = line;
-                temp.cursor = cursor;
-
-                if(temp.slice.ptr)
-                    list_push(token_list, &temp);
+                extract_token_preprocessor(content, &idx, line, &cursor, token_list);
                 break;
             }
             
             case '\"': {
-                temp = extract_token_string(content, &idx);
-                
-                temp.line = line;
-                temp.cursor = cursor;
-
-                list_push(token_list, &temp);
+                extract_token_string(content, &idx, line, &cursor, token_list);
                 break;
             }
 
             case ';': {
-                temp.type = TOKEN_TYPE_TERMINATOR;
-                
-                temp.slice.ptr = make_slice(content, idx++, 1);
-                temp.slice.len = 1;
-                temp.line = line;
-                temp.cursor = cursor;
-
-                list_push(token_list, &temp);
+                extract_token_single_char(content, &idx, TOKEN_TYPE_TERMINATOR, line, &cursor, token_list);
                 break;
             }
 
 
             case '=': {
-                temp.type = TOKEN_TYPE_ASSIGNMENT;
-
-                temp.slice.ptr = make_slice(content, idx++, 1);
-                temp.slice.len = 1;
-                temp.line = line;
-                temp.cursor = cursor;
-
-                list_push(token_list, &temp);
+                extract_token_single_char(content, &idx, TOKEN_TYPE_ASSIGNMENT, line, &cursor, token_list);
                 break;
             }
 
@@ -96,52 +72,24 @@ void process_content(List* token_list, char* content){
             case '|':
             case '^':
             case '~': {
-                temp.type = TOKEN_TYPE_BITWISE;
-                
-                temp.slice.ptr = make_slice(content, idx++, 1);
-                temp.slice.len = 1;
-                temp.line = line;
-                temp.cursor = cursor;
-
-                list_push(token_list, &temp);
+                extract_token_single_char(content, &idx, TOKEN_TYPE_BITWISE, line, &cursor, token_list);
                 break;
             }
 
             case '!': {
-                temp.type = TOKEN_TYPE_LOGIC;
-                
-                temp.slice.ptr = make_slice(content, idx++, 1);
-                temp.slice.len = 1;
-                temp.line = line;
-                temp.cursor = cursor;
-
-                list_push(token_list, &temp);
+                extract_token_single_char(content, &idx, TOKEN_TYPE_LOGIC, line, &cursor, token_list);
                 break;
             }
 
             case '?':
             case ':': {
-                temp.type = TOKEN_TYPE_MISC;
-                
-                temp.slice.ptr = make_slice(content, idx++, 1);
-                temp.slice.len = 1;
-                temp.line = line;
-                temp.cursor = cursor;
-
-                list_push(token_list, &temp);
+                extract_token_single_char(content, &idx, TOKEN_TYPE_MISC, line, &cursor, token_list);
                 break;
             }
 
             case '>':
             case '<': {
-                temp.type = TOKEN_TYPE_RELATION;
-                
-                temp.slice.ptr = make_slice(content, idx++, 1);
-                temp.slice.len = 1;
-                temp.line = line;
-                temp.cursor = cursor;
-
-                list_push(token_list, &temp);
+                extract_token_single_char(content, &idx, TOKEN_TYPE_RELATION, line, &cursor, token_list);
                 break;
 
             }
@@ -152,14 +100,7 @@ void process_content(List* token_list, char* content){
             case '.':
             case '[':
             case ']': {
-                temp.type = TOKEN_TYPE_PUNCTUATOR;
-                
-                temp.slice.ptr = make_slice(content, idx++, 1);
-                temp.slice.len = 1;
-                temp.line = line;
-                temp.cursor = cursor;
-
-                list_push(token_list, &temp);
+                extract_token_single_char(content, &idx, TOKEN_TYPE_PUNCTUATOR, line, &cursor, token_list);
                 break;
             }
 
@@ -167,90 +108,46 @@ void process_content(List* token_list, char* content){
             case '-':
             case '%': 
             case '*': {
-                temp.type = TOKEN_TYPE_ARITHMETIC;
-                
-                temp.slice.ptr = make_slice(content, idx++, 1);
-                temp.slice.len = 1;
-                temp.line = line;
-                temp.cursor = cursor;
-
-                list_push(token_list, &temp);
+                extract_token_single_char(content, &idx, TOKEN_TYPE_ARITHMETIC, line, &cursor, token_list);
                 break;
             }
             
             case '{':
             case '}': {
-                temp.type = TOKEN_TYPE_SCOPING;
-
-                temp.slice.ptr = make_slice(content, idx++, 1);
-                temp.slice.len = 1;
-                temp.line = line;
-                temp.cursor = cursor;
-
-                list_push(token_list, &temp);
+                extract_token_single_char(content, &idx, TOKEN_TYPE_SCOPING, line, &cursor, token_list);
                 break;
             }
 
             case '/': {
                 if(idx + 1 < len){
-                    if(content[idx] == content[idx+1]){
+                    if(content[idx] == content[idx+1])
                         while(content[idx++] != '\n'){}
-                    }else if (content[idx+1] == '*') {
+                    else if (content[idx+1] == '*') {
                         idx++;
-                        
-                        printf("%ld\n", idx);
-                        while(!(content[idx] == '*' && content[idx + 1] == '/')){
+                        while(!(content[idx] == '*' && content[idx + 1] == '/'))
                             idx++;
-                        }
                         idx += 2;
                     }else{
-                        temp.type = TOKEN_TYPE_ARITHMETIC;
-
-                        temp.slice.ptr = make_slice(content, idx++, 1);
-                        temp.slice.len = 1;
-                        temp.line = line;
-                        temp.cursor = cursor;
-
-                        list_push(token_list, &temp);
+                        extract_token_single_char(content, &idx, TOKEN_TYPE_ARITHMETIC, line, &cursor, token_list);
                     }
                 }
                 break;
             }
 
             default: {
-                if( (content[idx] >= 'a' && content[idx] <= 'z') || (content[idx] >= 'A' && content[idx] <= 'Z') ){
-                    temp = extract_token_identifier(content, &idx);
-                    
-                    temp.line = line;
-                    temp.cursor = cursor;
-                    
-                    list_push(token_list, &temp);
-                } else if((content[idx] >= '0' && content[idx] <= '9')) {
-                    temp = extract_token_literal(content, &idx);
-                    
-                    temp.line = line;
-                    temp.cursor = cursor;
-
-                    list_push(token_list, &temp);
-                } else {
+                if( (content[idx] >= 'a' && content[idx] <= 'z') || (content[idx] >= 'A' && content[idx] <= 'Z') )
+                    temp = extract_token_identifier(content, &idx, line, &cursor);
+                else if((content[idx] >= '0' && content[idx] <= '9'))
+                    temp = extract_token_literal(content, &idx, line, &cursor);
+                else {
                     CHECK_FAILED("Unhandled token at %d:%d - unknown char %c (%d)\n", line, cursor, content[idx], (int)content[idx]);
                 }
+
+                list_push(token_list, &temp);
                 break;
             }
         }
         
-    }
-}
-
-/**
- * @brief Frees a token list specifically
- * 
- * @param token_list Token list to be freed
- */
-void free_tokens(List* token_list) {
-    for(size_t i = 0; i < token_list->size; i++){
-        Token* tk = list_at(token_list, i);
-        free(tk->slice.ptr);
     }
 }
 
@@ -263,4 +160,11 @@ List* tokenize(const char* filename){
     
     printf("Tokenization Complete: %ld Tokens Generated.\n", token_list->size);
     return token_list;
+}
+
+void free_tokens(List* token_list) {
+    for(size_t i = 0; i < token_list->size; i++){
+        Token* tk = list_at(token_list, i);
+        free(tk->slice.ptr);
+    }
 }
