@@ -10,6 +10,15 @@
  */
 #pragma once
 #include "parser.h"
+#include "utility_types.h"
+
+/**
+ * @brief Preprocessor statements - just text
+ * 
+ */
+typedef struct{
+    StringSlice text;
+} PreProcessor;
 
 /**
  * @brief Makes a preprocessor statement

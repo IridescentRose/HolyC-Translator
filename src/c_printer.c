@@ -101,14 +101,14 @@ void emit_expression(FILE* fp, Expression* statement){
  * @param statement Declaration object to read from
  */
 void emit_declaration(FILE* fp, Declaration* statement) {
-    fprintf(fp, "%s%s%s %s", statement->externf ? "extern " : "", type_to_string(statement->type), statement->pointer ? "*" : "", statement->identifier.ptr);
+    fprintf(fp, "%s%s%s %s", statement->type.is_extern ? "extern " : "", type_to_string(statement->type.primitive), statement->type.is_pointer ? "*" : "", statement->identifier.ptr);
 
     if(statement->is_function) {
         fprintf(fp, "(");
 
         int count = 0;
-        while((int)statement->args.types[count] != -1){
-            fprintf(fp, "%s %s%s", type_to_string(statement->args.types[count]), statement->args.identifiers[count] ? statement->args.identifiers[count] : "", (int)statement->args.types[count + 1] != -1 ? "," : "");
+        while((int)statement->args.types[count].primitive != -1){
+            fprintf(fp, "%s %s%s", type_to_string(statement->args.types[count].primitive), statement->args.identifiers[count] ? statement->args.identifiers[count] : "", (int)statement->args.types[count + 1].primitive != -1 ? "," : "");
             count++;
         }
 
@@ -135,8 +135,8 @@ void emit_definition(FILE* fp, Definition* statement, int tab_count) {
         fprintf(fp, "(");
 
         int count = 0;
-        while((int)statement->args.types[count] != -1){
-            fprintf(fp, "%s%s %s%s", type_to_string(statement->args.types[count]), statement->args.pointer[count] ? "*" : "", statement->args.identifiers[count] ? statement->args.identifiers[count] : "", (int)statement->args.types[count + 1] != -1 ? "," : "");
+        while((int)statement->args.types[count].primitive != -1){
+            fprintf(fp, "%s%s %s%s", type_to_string(statement->args.types[count].primitive), statement->args.types[count].is_pointer ? "*" : "", statement->args.identifiers[count] ? statement->args.identifiers[count] : "", (int)statement->args.types[count + 1].primitive != -1 ? "," : "");
             count++;
         }
 

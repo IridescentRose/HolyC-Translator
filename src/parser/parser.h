@@ -10,6 +10,10 @@
  */
 #pragma once
 #include "../tokenizer/tokenizer.h"
+#include "utility_types.h"
+
+#include "declaration.h"
+#include "preprocessor.h"
 
 /**
  * @brief Statements are comprised of 3 types: Declaration, Definition, and Expressions. 
@@ -33,24 +37,6 @@ typedef struct{
     StatementType type;
     void* statementData;
 } Statement;
-
-/**
- * @brief All Holy C types
- * 
- */
-typedef enum{
-    TYPE_U0,
-    TYPE_U8,
-    TYPE_U16,
-    TYPE_U32,
-    TYPE_U64,
-    TYPE_I8,
-    TYPE_I16,
-    TYPE_I32,
-    TYPE_I64,
-    TYPE_F64,
-} Type;
-
 
 /**
  * @brief A scoped block contains a list of statements. These statements are in order and can have definitions.
@@ -83,28 +69,7 @@ typedef struct{
     char buffer[256];
 } Expression;
 
-/**
- * @brief Arguments object, contains arguments to a function as types, identifiers, and if certain types are pointers
- * 
- */
-typedef struct{
-    Type types[16];
-    char* identifiers[16];
-    char pointer[16];
-} Arguments;
 
-/**
- * @brief Declaration object which contains the type and identifier, if it is a point or a function, if it externally linked, and arguments if it is a function
- * 
- */
-typedef struct{
-    StringSlice identifier;
-    Type type;
-    char pointer;
-    char is_function;
-    char externf;
-    Arguments args;
-} Declaration;
 
 /**
  * @brief Definition object which contains the type and identifier, if it is a point or a function, if it externally linked, and arguments , also contains a codeblock
@@ -120,14 +85,6 @@ typedef struct{
     //Function definition
     struct ScopeBlock* function_content;
 } Definition;
-
-/**
- * @brief Preprocessor statements - largely just text
- * 
- */
-typedef struct{
-    StringSlice text;
-} PreProcessor;
 
 /**
  * @brief A program is just a big globally scoped block for our purposes

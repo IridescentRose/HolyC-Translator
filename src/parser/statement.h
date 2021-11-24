@@ -12,29 +12,6 @@
 #include "parser.h"
 
 /**
- * @brief Makes a variable declaration statement
- * 
- * @param list List of statements to add to
- * @param identifier Slice of identifier
- * @param type Type of identifier
- * @param pointer If the declaration is a pointer
- * @param extern If the declaration is extern
- */
-void make_variable_declaration(List* list, StringSlice identifier, Type type, char pointer, char externf);
-
-/**
- * @brief Makes a variable declaration statement
- * 
- * @param list List of statements to add to
- * @param identifier Slice of identifier
- * @param type Type of identifier
- * @param pointer If the declaration is a pointer
- * @param extern If the declaration is extern
- * @param args If the declaration is a function - what are the arguments?
- */
-void make_function_declaration(List* list, StringSlice identifier, Type type, char pointer, char externf, Arguments args);
-
-/**
  * @brief Makes a function definition
  * 
  * @param list List to add statement to

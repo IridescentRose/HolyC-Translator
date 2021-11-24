@@ -113,7 +113,6 @@ Token* get_next(List* token_list, size_t* idx){
 void parse_token_program(struct ScopeBlock* block, List* token_list, size_t* idx){
     Token* token = list_at(token_list, *idx);
 
-    int externf = 0;
     switch(token->type){
         case TOKEN_TYPE_PREPROCESSOR: {
             make_preprocessor(block->statement_list, token, idx);
@@ -188,7 +187,9 @@ void parse_token_program(struct ScopeBlock* block, List* token_list, size_t* idx
 
         case TOKEN_TYPE_PRIMITIVE: {
             //Upon receiving a primitive, we have to check what it is.
-            Type type = get_type(token->slice);
+            CType type;
+            memset(&type, 0, sizeof(CType));
+            type.primitive = get_type(token->slice);
             Token* next_tok = get_next(token_list, idx);
 
             char pointer = 0;
@@ -212,7 +213,7 @@ void parse_token_program(struct ScopeBlock* block, List* token_list, size_t* idx
                 Arguments args;
                 memset(&args, 0, sizeof(Arguments));
                 for(int i = 0; i < 16; i++){
-                    args.types[i] = -1;
+                    args.types[i].primitive = -1;
                 }
 
                 int count = 0;
@@ -225,7 +226,7 @@ void parse_token_program(struct ScopeBlock* block, List* token_list, size_t* idx
                     }
 
                     if(next_tok->type == TOKEN_TYPE_PRIMITIVE){
-                        args.types[count] = get_type(next_tok->slice);
+                        args.types[count].primitive = get_type(next_tok->slice);
                     } else {
                         if(next_tok->slice.ptr[0] == '.'){
                             next_tok = get_next(token_list, idx);
@@ -239,7 +240,7 @@ void parse_token_program(struct ScopeBlock* block, List* token_list, size_t* idx
 
                     if(next_tok->type == TOKEN_TYPE_ARITHMETIC && next_tok->slice.ptr[0] == '*'){
                         //Pointer
-                        args.pointer[count] = 1;
+                        args.types[count].is_pointer = 1;
                         next_tok = get_next(token_list, idx);
                     }
 
@@ -255,7 +256,7 @@ void parse_token_program(struct ScopeBlock* block, List* token_list, size_t* idx
 
                 next_tok = get_next(token_list, idx);
                 if(next_tok->type == TOKEN_TYPE_TERMINATOR) {
-                    make_function_declaration(block->statement_list, identifier, type, pointer, externf, args);
+                    make_function_declaration(block->statement_list, identifier, type, args);
                 } else if(next_tok->type == TOKEN_TYPE_SCOPING) {
                     //Function definition;
                     struct ScopeBlock* statementBlock = (struct ScopeBlock*)calloc(1, sizeof(struct ScopeBlock));
@@ -270,13 +271,13 @@ void parse_token_program(struct ScopeBlock* block, List* token_list, size_t* idx
                         test = list_at(token_list, *idx);
                     }
                     
-                    make_function_definition(block->statement_list, identifier, type, pointer, args, statementBlock);
+                    make_function_definition(block->statement_list, identifier, type.primitive, pointer, args, statementBlock);
                 }
             } else if (next_tok->type == TOKEN_TYPE_TERMINATOR){
-                make_variable_declaration(block->statement_list, identifier, type, pointer, externf);
+                make_variable_declaration(block->statement_list, identifier, type);
             } else if (next_tok->type == TOKEN_TYPE_ASSIGNMENT){
                 //This is a fused Declaration + Assignment
-                make_variable_declaration(block->statement_list, identifier, type, pointer, externf);
+                make_variable_declaration(block->statement_list, identifier, type);
                 
                 Expression* expr = (Expression*)calloc(1, sizeof(Expression));
                 strcat(expr->buffer, identifier.ptr);
