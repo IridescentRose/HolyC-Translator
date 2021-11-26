@@ -17,9 +17,9 @@
  * @return int 0 if not found, 1 if found
  */
 int check_primitive(Token* tk){
-    char* prims[10] = {"U0", "U8", "U16", "U32", "U64", "I8", "I16", "I32", "I64", "F64"};
+    char* prims[11] = {"U0", "U8", "U16", "U32", "U64", "I0", "I8", "I16", "I32", "I64", "F64"};
 
-    for(size_t i = 0; i < 10; i++){
+    for(size_t i = 0; i < 11; i++){
         if(strcmp(tk->slice.ptr, prims[i]) == 0){
             return 1;
         }

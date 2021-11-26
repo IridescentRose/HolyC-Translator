@@ -24,25 +24,10 @@ The #exe directive executes and records the results of commands executed in the 
 
 Similarly `#help_index` and `#help_file` will not be available. These statements are completely deleted.
 
+Sub-switch statements, multiple reserve/pad variable, noreg, and function flags are ignored.
+
+Defines will technically allow you to create macros because preprocessor statements are not evaluated
+
+Locks and memory functions like MSize or the ability to free NULL pointers will not be supported. Furthermore the semantics of bit extension for all calculations will likely not be supported.
+
 One other such limitation is re-interpretting the ASM specification.
-
-## To-Do
-
-- [x] Tokenize Keywords in a single pass
-- [x] Tokenize Joint Symbols (+=) as a secondary pass
-- [x] Tokenize all valid ASCII-based symbols
-- [x] Token Metadata for error reporting (line position & cursor position)
-- [x] Reorganize Tokenizer
-- [x] Parser error handling improvements
-- [x] Reorganize Parser
-- [ ] Rewrite Parser
-- [ ] Parser can parse conditionals (if, else if, else, switch, while)
-- [ ] Code generator can emit conditionals
-- [ ] Parser can parse struct (class?)
-- [ ] Code generator can emit structs/classes
-- [ ] Parser can parse uniforms
-- [ ] Code generator can emit uniforms
-- [ ] Code generator can re-order function parameters (defaults)
-- [ ] Parser type checking
-- [ ] Parse sizeof & U0 0-length type semantics
-

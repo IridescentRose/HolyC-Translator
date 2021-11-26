@@ -54,6 +54,9 @@ Type get_type(StringSlice slice){
     if(strcmp(slice.ptr, "U64") == 0){
         return TYPE_U64;
     }
+    if(strcmp(slice.ptr, "I0") == 0){
+        return TYPE_I0;
+    }
     if(strcmp(slice.ptr, "I8") == 0){
         return TYPE_I8;
     }
