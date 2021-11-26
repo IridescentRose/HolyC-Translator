@@ -11,6 +11,23 @@
 #pragma once
 #include "parser.h"
 
+
+/**
+ * @brief Definition object which contains the type and identifier, if it is a point or a function, if it externally linked, and arguments , also contains a codeblock
+ * 
+ */
+typedef struct{
+    StringSlice identifier;
+    Type type;
+    char pointer;
+    char is_function;
+    Arguments args;
+
+    //Function definition
+    struct ScopeBlock* function_content;
+} Definition;
+
+
 /**
  * @brief Makes a function definition
  * 

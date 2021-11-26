@@ -14,6 +14,8 @@
 
 #include "declaration.h"
 #include "preprocessor.h"
+#include "expression.h"
+#include "definition.h"
 
 /**
  * @brief Statements are comprised of 3 types: Declaration, Definition, and Expressions. 
@@ -49,44 +51,6 @@ struct ScopeBlock{
 };
 
 /**
- * @brief Different types of expressions
- * CALL expressions generate a default function call from implied text.
- * PRINTF expressions generate PRINTF calls from implied text.
- * GENERAL expressions are any type of expression.
- */
-typedef enum{
-    EXPRESSION_TYPE_GENERAL,
-    EXPRESSION_TYPE_CALL,
-    EXPRESSION_TYPE_PRINTF,
-}ExpressionType;
-
-/**
- * @brief Expression object, comprised of a type, and a buffer to store the expression text
- * 
- */
-typedef struct{
-    ExpressionType type;
-    char buffer[256];
-} Expression;
-
-
-
-/**
- * @brief Definition object which contains the type and identifier, if it is a point or a function, if it externally linked, and arguments , also contains a codeblock
- * 
- */
-typedef struct{
-    StringSlice identifier;
-    Type type;
-    char pointer;
-    char is_function;
-    Arguments args;
-
-    //Function definition
-    struct ScopeBlock* function_content;
-} Definition;
-
-/**
  * @brief A program is just a big globally scoped block for our purposes
  *
  */
@@ -94,6 +58,21 @@ typedef struct{
     struct ScopeBlock block;
 }Program;
 
+/**
+ * @brief Get the next object
+ * 
+ * @param token_list Token List
+ * @param idx Index to increments
+ * @return Token* Next token
+ */
+Token* get_next(List* token_list, size_t* idx);
+
+/**
+ * @brief Parses a given token list into a program representation
+ * 
+ * @param token_list List of Tokens
+ * @return Program* Program out
+ */
 Program* parse(List* token_list);
 
 

@@ -1,3 +1,7 @@
-#ifaot
-#warn OOF
-#endif
+/*Ooh fancy comment*/
+U0 Main()
+{
+    "Hello World\n";
+}
+
+Main;
