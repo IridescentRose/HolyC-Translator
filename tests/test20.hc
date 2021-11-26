@@ -1,6 +1,6 @@
-/* This code executes at compile time
- * It will then encapsulated output as a string.
- */
-#define D #exe{ echo Test }
+U0 AddPrint(U32 a, U32 b)
+{
+  "%d", a + b; //Empty with no comma means first is fmt str.
+}
 
-"%s", D;
+AddPrint(10, 12);

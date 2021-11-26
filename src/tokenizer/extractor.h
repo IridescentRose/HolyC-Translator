@@ -67,6 +67,16 @@ Token extract_token_literal(char* content, size_t* idx, int line, int* cursor);
  * @param line Line number
  * @param cursor Cursor number
  * @param token_list Token list
- * @return Returns a Token
  */
 void extract_token_string(char* content, size_t* idx, int line, int* cursor, List* token_list);
+
+/**
+ * @brief Extract a Token for a string literal.
+ * 
+ * @param content String to extract from 
+ * @param idx*Index pointer to increment
+ * @param line Line number
+ * @param cursor Cursor number
+ * @param token_list Token list
+ */
+void extract_token_string_single(char* content, size_t* idx, int line, int* cur, List* token_list);

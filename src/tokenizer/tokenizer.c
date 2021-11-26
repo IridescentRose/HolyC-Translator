@@ -60,6 +60,11 @@ void process_content(List* token_list, char* content){
                 break;
             }
 
+            case '\'': {
+                extract_token_string_single(content, &idx, line, &cursor, token_list);
+                break;
+            }
+
             case ';': {
                 extract_token_single_char(content, &idx, TOKEN_TYPE_TERMINATOR, line, &cursor, token_list);
                 break;

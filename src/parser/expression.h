@@ -1,7 +1,6 @@
 #pragma once
 #include "parser.h"
 
-
 /**
  * @brief Different types of expressions
  * CALL expressions generate a default function call from implied text.
@@ -22,3 +21,13 @@ typedef struct{
     ExpressionType type;
     char buffer[256];
 } Expression;
+
+/**
+ * @brief Make a printf expression based on string literal
+ * 
+ * @param token_list Token list
+ * @param token Token first picked
+ * @param idx Index of token
+ * @param statement_list Statement list to add to
+ */
+void make_expression_printf(List* token_list, Token* token, size_t* idx, List* statement_list);

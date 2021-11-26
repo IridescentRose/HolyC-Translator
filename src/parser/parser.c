@@ -38,6 +38,7 @@ void parse_token_program(struct ScopeBlock* block, List* token_list, size_t* idx
         }
 
         case TOKEN_TYPE_SCOPING: {
+            //TODO: Support arbitrary scoped blocks
             break;
         }
 
@@ -47,7 +48,7 @@ void parse_token_program(struct ScopeBlock* block, List* token_list, size_t* idx
         }
 
         case TOKEN_TYPE_STRING: {
-            CHECK_FAILED("STRING DETECTED!\n");
+            make_expression_printf(token_list, token, idx, block->statement_list);
             break;
         }
 

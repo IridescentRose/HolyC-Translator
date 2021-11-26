@@ -165,3 +165,25 @@ void extract_token_string(char* content, size_t* idx, int line, int* cur, List* 
     
     list_push(token_list, &tk);
 }
+
+
+void extract_token_string_single(char* content, size_t* idx, int line, int* cur, List* token_list){
+    Token tk;
+    tk.slice.len = 1;
+    tk.slice.ptr = 0;
+    tk.type = TOKEN_TYPE_STRING;
+
+    for(;content[tk.slice.len + *idx] != '\''; tk.slice.len++){}
+    tk.slice.len++;
+
+    tk.slice.ptr = make_slice(content, *idx, tk.slice.len);
+
+    
+    tk.line = line;
+    tk.cursor = (*cur);
+
+    (*idx) += tk.slice.len;
+    (*cur) += tk.slice.len;
+    
+    list_push(token_list, &tk);
+}
