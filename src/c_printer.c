@@ -41,6 +41,7 @@ void emit_preprocessor(FILE* fp, PreProcessor* statement) {
  */
 const char* type_to_string(Type type){
     switch(type){
+        case TYPE_I0:
         case TYPE_U0: {
             return "void";
         }

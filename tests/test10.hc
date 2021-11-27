@@ -1,1 +1,1 @@
-U32* myInt;
+U32 myInt;

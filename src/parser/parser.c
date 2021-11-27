@@ -19,6 +19,71 @@ Token* get_next(List* token_list, size_t* idx){
     return next_tok;
 }
 
+/*
+ * @brief Get the type object
+ * 
+ * @param slice Slice for a type ID
+ * @return Type Type
+ *
+ */
+Type get_primitive(StringSlice slice){
+    
+    if(strcmp(slice.ptr, "U0") == 0){
+        return TYPE_U0;
+    }
+    if(strcmp(slice.ptr, "U8") == 0){
+        return TYPE_U8;
+    }
+    if(strcmp(slice.ptr, "U16") == 0){
+        return TYPE_U16;
+    }
+    if(strcmp(slice.ptr, "U32") == 0){
+        return TYPE_U32;
+    }
+    if(strcmp(slice.ptr, "U64") == 0){
+        return TYPE_U64;
+    }
+    if(strcmp(slice.ptr, "I0") == 0){
+        return TYPE_I0;
+    }
+    if(strcmp(slice.ptr, "I8") == 0){
+        return TYPE_I8;
+    }
+    if(strcmp(slice.ptr, "I16") == 0){
+        return TYPE_I16;
+    }
+    if(strcmp(slice.ptr, "I32") == 0){
+        return TYPE_I32;
+    }
+    if(strcmp(slice.ptr, "I64") == 0){
+        return TYPE_I64;
+    }
+    if(strcmp(slice.ptr, "F64") == 0){
+        return TYPE_F64;
+    }
+
+    return -1;
+}
+
+
+void get_primitive_identifier(List* token_list, Token* token, size_t* idx, CType* type, StringSlice* identifier){
+    memset(type, 0, sizeof(CType));
+    type->primitive = get_primitive(token->slice);
+
+    Token* next_tok = get_next(token_list, idx);
+
+    if(next_tok->slice.ptr[0] == '*'){
+        type->is_pointer = 1;
+        next_tok = get_next(token_list, idx);
+    }
+    
+    if(next_tok->type != TOKEN_TYPE_IDENTIFIER){
+        CHECK_FAILED("Error: Expected identifier after primitive declaration! Found %s at %d:%d!\n", next_tok->slice.ptr, next_tok->line, next_tok->cursor);
+    }
+    (*identifier) = next_tok->slice;
+}
+
+
 /**
  * @brief Parse tokens into a program scope block
  * 
@@ -43,7 +108,8 @@ void parse_token_program(struct ScopeBlock* block, List* token_list, size_t* idx
         }
 
         case TOKEN_TYPE_IDENTIFIER: {
-            CHECK_FAILED("IDENTIFIER DETECTED!\n");
+            //TODO: Add call-check support
+            make_expression_general(token_list, token->slice, idx, block->statement_list);
             break;
         }
 
@@ -53,7 +119,26 @@ void parse_token_program(struct ScopeBlock* block, List* token_list, size_t* idx
         }
 
         case TOKEN_TYPE_PRIMITIVE: {
-            CHECK_FAILED("PRIMITIVE DETECTED!\n");
+            CType type;
+            StringSlice identifier;
+
+            get_primitive_identifier(token_list, token, idx, &type, &identifier);
+
+            Token* next_tok = get_next(token_list, idx);
+
+            if(next_tok->type == TOKEN_TYPE_TERMINATOR){
+                make_variable_declaration(block->statement_list, identifier, type);
+                (*idx)++;
+            } else if (next_tok->type == TOKEN_TYPE_ASSIGNMENT) {
+                make_variable_declaration(block->statement_list, identifier, type);
+                make_expression_compound_assign(token_list, identifier, idx, block->statement_list);
+            } else if (next_tok->type == TOKEN_TYPE_PUNCTUATOR) {
+                //<arguments> <punctuator> <terminator>
+                //<arguments> <punctuator> <scoping>
+                CHECK_FAILED("PRIMITIVE DETECTED!\n");
+            } else {
+                CHECK_FAILED("INVALID!\n");
+            }
             break;
         }
 
