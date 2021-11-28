@@ -1,1 +1,4 @@
-U0 Main(U32 argc);
+U0 Main(){
+    U32* myInt;
+}
+Main;

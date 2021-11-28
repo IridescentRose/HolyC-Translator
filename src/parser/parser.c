@@ -19,12 +19,11 @@ Token* get_next(List* token_list, size_t* idx){
     return next_tok;
 }
 
-/*
+/**
  * @brief Get the type object
  * 
  * @param slice Slice for a type ID
  * @return Type Type
- *
  */
 Type get_primitive(StringSlice slice){
     
@@ -65,7 +64,15 @@ Type get_primitive(StringSlice slice){
     return -1;
 }
 
-
+/**
+ * @brief Get the primitive identifier object
+ * 
+ * @param token_list List of tokens
+ * @param token Initial token
+ * @param idx Index of current token
+ * @param type Type to write to
+ * @param identifier Identifier to write to
+ */
 void get_primitive_identifier(List* token_list, Token* token, size_t* idx, CType* type, StringSlice* identifier){
     memset(type, 0, sizeof(CType));
     type->primitive = get_primitive(token->slice);
@@ -83,6 +90,79 @@ void get_primitive_identifier(List* token_list, Token* token, size_t* idx, CType
     (*identifier) = next_tok->slice;
 }
 
+/**
+ * @brief Get the primitive identifier object
+ * 
+ * @param token_list List of tokens
+ * @param token Initial token
+ * @param idx Index of current token
+ * @param type Type to write to
+ * @param identifier Identifier to write to
+ */
+void get_primitive_identifier_argument(List* token_list, Token* token, size_t* idx, CType* type, char** identifier){
+    memset(type, 0, sizeof(CType));
+    
+    if(token->type == TOKEN_TYPE_KEYWORD) {
+        //Can only really be const or volatile.
+        if(token->keyword == KEYWORD_TYPE_CONST) {
+            type->is_const = 1;
+        } else if (token->keyword == KEYWORD_TYPE_VOLATILE) {
+            type->is_volatile = 1;
+        } else {
+            CHECK_FAILED("Error: Expected valid keyword for argument parameter! Found %s at %d:%d!\n", token->slice.ptr, token->line, token->cursor);
+        }
+
+        token = get_next(token_list, idx);
+    }
+
+    type->primitive = get_primitive(token->slice);
+
+    Token* next_tok = get_next(token_list, idx);
+
+    if(next_tok->slice.ptr[0] == '*'){
+        type->is_pointer = 1;
+        next_tok = get_next(token_list, idx);
+    }
+    
+    if(next_tok->type != TOKEN_TYPE_IDENTIFIER){
+        (*identifier) = NULL;
+
+        (*idx)--; //Reverse one, just in case this is the end
+    } else {
+        (*identifier) = next_tok->slice.ptr;
+    }
+}
+
+/**
+ * @brief Get the arguments object
+ * 
+ * @param token_list Token List to read
+ * @param idx Index of current token
+ * @param args Arguments to write to
+ */
+void get_arguments(List* token_list, size_t* idx, Arguments* args) {
+    memset(args, 0, sizeof(Arguments));
+    memset(args->types, -1, sizeof(args->types));
+
+    Token* next_tok = get_next(token_list, idx);
+    
+    int count = 0;
+
+    //While we don't have ')'
+    while(next_tok->slice.ptr[0] != ')' && count < 16) {
+
+        if(next_tok->slice.ptr[0] == ','){
+            next_tok = get_next(token_list, idx);
+        }
+
+        get_primitive_identifier_argument(token_list, next_tok, idx, &args->types[count], &args->identifiers[count]);
+        count++;
+
+        next_tok = get_next(token_list, idx);
+    }
+
+    //We exit, knowing that the token is ')', and we will read the next
+}
 
 /**
  * @brief Parse tokens into a program scope block
@@ -133,9 +213,34 @@ void parse_token_program(struct ScopeBlock* block, List* token_list, size_t* idx
                 make_variable_declaration(block->statement_list, identifier, type);
                 make_expression_compound_assign(token_list, identifier, idx, block->statement_list);
             } else if (next_tok->type == TOKEN_TYPE_PUNCTUATOR) {
-                //<arguments> <punctuator> <terminator>
-                //<arguments> <punctuator> <scoping>
-                CHECK_FAILED("PRIMITIVE DETECTED!\n");
+                //Grab args 'til next punctuator - check terminator or scoping
+                Arguments args;
+                get_arguments(token_list, idx, &args);
+
+                next_tok = get_next(token_list, idx);
+
+                if(next_tok->type == TOKEN_TYPE_TERMINATOR) {
+                    make_function_declaration(block->statement_list, identifier, type, args);
+                    (*idx)++;
+                } else if (next_tok->type == TOKEN_TYPE_SCOPING) {
+                    
+                    struct ScopeBlock* statementBlock = (struct ScopeBlock*)calloc(1, sizeof(struct ScopeBlock));
+                    statementBlock->parent = block;
+                    statementBlock->statement_list = list_new(sizeof(Statement), 32);
+
+                    (*idx)++;
+                    Token* test = list_at(token_list, *idx);
+                    
+                    while(test && test->type != TOKEN_TYPE_SCOPING){
+                        parse_token_program(statementBlock, token_list, idx);
+                        test = list_at(token_list, *idx);
+                    }
+
+                    make_function_definition(block->statement_list, identifier, type, args, statementBlock);
+                    (*idx)++;
+                } else {
+                    CHECK_FAILED("INVALID!\n");
+                }
             } else {
                 CHECK_FAILED("INVALID!\n");
             }

@@ -1,7 +1,5 @@
-U8 sum(U8 a, U8 b) {
-    return a + b;
+U0 MyPrint2(U8 *st1,U8 *st2) //Any number of args.
+{
+  "%s %s\n",st1,st2; //Any number of args.
 }
-
-U8 i;
-i = sum(1, 2);
-"%d\n",i;
+MyPrint2("Hello","World");

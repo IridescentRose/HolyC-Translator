@@ -95,6 +95,36 @@ void emit_expression(FILE* fp, Expression* statement){
     }
 }
 
+void emit_type(FILE* fp, CType* type) {
+    
+    if(type->is_extern) {
+        fprintf(fp, "extern ");   
+    }
+
+    if(type->is_const) {
+        fprintf(fp, "const ");
+    }
+
+    if(type->is_static) {
+        fprintf(fp, "static ");
+    }
+
+    if(type->is_register) {
+        fprintf(fp, "register ");
+    }
+
+    if(type->is_volatile) {
+        fprintf(fp, "volatile ");
+    }
+
+    fprintf(fp, "%s ", type_to_string(type->primitive));
+
+    if(type->is_pointer) {
+        fprintf(fp, "* ");
+    }
+
+}
+
 /**
  * @brief Emits a declaration of variable or function
  * 
@@ -102,14 +132,16 @@ void emit_expression(FILE* fp, Expression* statement){
  * @param statement Declaration object to read from
  */
 void emit_declaration(FILE* fp, Declaration* statement) {
-    fprintf(fp, "%s%s%s %s", statement->type.is_extern ? "extern " : "", type_to_string(statement->type.primitive), statement->type.is_pointer ? "*" : "", statement->identifier.ptr);
+    emit_type(fp, &statement->type);
+    fprintf(fp, "%s", statement->identifier.ptr);
 
     if(statement->is_function) {
         fprintf(fp, "(");
 
         int count = 0;
         while((int)statement->args.types[count].primitive != -1){
-            fprintf(fp, "%s %s%s", type_to_string(statement->args.types[count].primitive), statement->args.identifiers[count] ? statement->args.identifiers[count] : "", (int)statement->args.types[count + 1].primitive != -1 ? "," : "");
+            emit_type(fp, &statement->args.types[count]);
+            fprintf(fp, "%s%s", statement->args.identifiers[count] ? statement->args.identifiers[count] : "", (int)statement->args.types[count + 1].primitive != -1 ? "," : "");
             count++;
         }
 
@@ -130,14 +162,16 @@ void emit_statement_block(FILE* fp, struct ScopeBlock* block, int tab_count);
  * @param tab_count Number of tabs for recursive emit_statement blocks
  */
 void emit_definition(FILE* fp, Definition* statement, int tab_count) {
-    fprintf(fp, "%s%s %s", type_to_string(statement->type), statement->pointer ? "*" : "", statement->identifier.ptr);
+    emit_type(fp, &statement->type);
+    fprintf(fp, "%s", statement->identifier.ptr);
 
     if(statement->is_function) {
         fprintf(fp, "(");
 
         int count = 0;
         while((int)statement->args.types[count].primitive != -1){
-            fprintf(fp, "%s%s %s%s", type_to_string(statement->args.types[count].primitive), statement->args.types[count].is_pointer ? "*" : "", statement->args.identifiers[count] ? statement->args.identifiers[count] : "", (int)statement->args.types[count + 1].primitive != -1 ? "," : "");
+            emit_type(fp, &statement->args.types[count]);
+            fprintf(fp, "%s%s", statement->args.identifiers[count] ? statement->args.identifiers[count] : "", (int)statement->args.types[count + 1].primitive != -1 ? "," : "");
             count++;
         }
 
@@ -158,11 +192,12 @@ void emit_definition(FILE* fp, Definition* statement, int tab_count) {
  */
 void emit_statement_block(FILE* fp, struct ScopeBlock* block, int tab_count){
 
-    for(int i = 0; i < tab_count; i++){
-        fprintf(fp, "\t");
-    }
-
     for(size_t i = 0; i < block->statement_list->size; i++){
+
+        for(int i = 0; i < tab_count; i++){
+            fprintf(fp, "\t");
+        }
+
         Statement* statement = list_at(block->statement_list, i);
 
         switch (statement->type) {

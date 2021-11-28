@@ -12,4 +12,4 @@ test: all
 
 
 valgrind:
-	@valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes bin/hc2c tests/test10.hc out/output.c
+	@valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --num-callers=20 --track-fds=yes bin/hc2c tests/test25.hc out/output.c

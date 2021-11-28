@@ -18,12 +18,11 @@
  */
 typedef struct{
     StringSlice identifier;
-    Type type;
-    char pointer;
+    CType type;
+
     char is_function;
     Arguments args;
 
-    //Function definition
     struct ScopeBlock* function_content;
 } Definition;
 
@@ -34,8 +33,7 @@ typedef struct{
  * @param list List to add statement to
  * @param identifier Name
  * @param type Type
- * @param pointer Is a pointer?
  * @param args Arguments list
  * @param statement_list Statements inside the block
  */
-void make_function_definition(List* list, StringSlice identifier, Type type, char pointer, Arguments args, struct ScopeBlock* statement_list);
+void make_function_definition(List* list, StringSlice identifier, CType type, Arguments args, struct ScopeBlock* statement_list);
