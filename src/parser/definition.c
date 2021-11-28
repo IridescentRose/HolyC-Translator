@@ -19,6 +19,7 @@ void make_function_definition(List* list, StringSlice identifier, CType type, Ar
     def->identifier = identifier;
     def->is_function = 1;
     def->args = args;
+    
     def->function_content = statement_list;
 
     statement.statementData = def;

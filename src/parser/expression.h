@@ -33,6 +33,14 @@ typedef struct{
 void make_expression_general(List* token_list, StringSlice identifier, size_t* idx, List* statement_list);
 
 /**
+ * @brief Makes a call-type expression
+ * 
+ * @param identifier Identifier of first token
+ * @param statement_list List to add to
+ */
+void make_expression_call(StringSlice identifier, List* statement_list);
+
+/**
  * @brief Makes a general-type expression from compound assignment
  * 
  * @param token_list Token list to look at
