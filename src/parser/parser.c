@@ -204,11 +204,17 @@ void parse_token_program(struct ScopeBlock *block, List *token_list, size_t *idx
  * @param idx Index
  * @param block Block
  */
-void determine_primitive(List* token_list, Token* token, size_t* idx, struct ScopeBlock* block) {
+void determine_primitive(List* token_list, Token* token, size_t* idx, struct ScopeBlock* block, CType type_q) {
     CType type;
     StringSlice identifier;
 
     get_primitive_identifier(token_list, token, idx, &type, &identifier);
+
+    type.is_const |= type_q.is_const;
+    type.is_extern |= type_q.is_extern;
+    type.is_register |= type_q.is_register;
+    type.is_static |= type_q.is_static;
+    type.is_volatile |= type_q.is_volatile;
 
     Token *next_tok = get_next(token_list, idx);
 
@@ -282,6 +288,44 @@ int check_identifier_function(struct ScopeBlock* block, StringSlice identifier){
     return 0;
 }
 
+void check_qualifiers(List* token_list, Token* token, size_t* idx, CType* type_q) {
+
+    switch (token->keyword) {
+        case KEYWORD_TYPE_CONST:{
+            type_q->is_const = 1;
+            break;
+        }
+        case KEYWORD_TYPE_EXTERN:{
+            type_q->is_extern = 1;
+            break;
+        }
+        case KEYWORD_TYPE_REGISTER:{
+            type_q->is_register = 1;
+            break;
+        }
+        case KEYWORD_TYPE_STATIC:{
+            type_q->is_static = 1;
+            break;
+        }
+        case KEYWORD_TYPE_VOLATILE:{
+            type_q->is_volatile = 1;
+            break;
+        }
+        default:{
+            CHECK_FAILED("Error: Expected Qualifier! Found %s at %d:%d!", token->slice.ptr, token->line, token->cursor);
+            break;
+        }
+    }
+
+    Token* next_tok = get_next(token_list, idx);
+
+    if(next_tok->type == TOKEN_TYPE_KEYWORD) {
+        check_qualifiers(token_list, token, idx, type_q);
+    } else {
+        (*idx)--;
+    }
+}
+
 
 /**
  * @brief Parse tokens into a program scope block
@@ -295,6 +339,8 @@ int check_identifier_function(struct ScopeBlock* block, StringSlice identifier){
 void parse_token_program(struct ScopeBlock *block, List *token_list, size_t *idx)
 {
     Token *token = list_at(token_list, *idx);
+    CType type_q;
+    memset(&type_q, 0, sizeof(CType));
 
     switch (token->type)
     {
@@ -335,13 +381,24 @@ void parse_token_program(struct ScopeBlock *block, List *token_list, size_t *idx
 
     case TOKEN_TYPE_PRIMITIVE:
     {
-        determine_primitive(token_list, token, idx, block);
+        determine_primitive(token_list, token, idx, block, type_q);
         break;
     }
 
     case TOKEN_TYPE_KEYWORD:
     {
         switch(token->keyword) {
+
+            case KEYWORD_TYPE_CONST:
+            case KEYWORD_TYPE_EXTERN:
+            case KEYWORD_TYPE_REGISTER:
+            case KEYWORD_TYPE_STATIC:
+            case KEYWORD_TYPE_VOLATILE: {
+                check_qualifiers(token_list, token, idx, &type_q);
+                token = get_next(token_list, idx);
+                determine_primitive(token_list, token, idx, block, type_q);
+                break;
+            }
 
             case KEYWORD_TYPE_RETURN: {
                 make_expression_general(token_list, token->slice, idx, block->statement_list, " ");
