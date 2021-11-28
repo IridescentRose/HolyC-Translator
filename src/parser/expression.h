@@ -29,8 +29,9 @@ typedef struct{
  * @param identifier Identifier of first token
  * @param idx Index
  * @param statement_list List to add to
+ * @param prepend Add characters before expression
  */
-void make_expression_general(List* token_list, StringSlice identifier, size_t* idx, List* statement_list);
+void make_expression_general(List* token_list, StringSlice identifier, size_t* idx, List* statement_list, char* prepend);
 
 /**
  * @brief Makes a call-type expression

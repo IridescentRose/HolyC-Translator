@@ -1,11 +1,14 @@
 #include "expression.h"
 
 
-void make_expression_general(List* token_list, StringSlice identifier, size_t* idx, List* statement_list){
+void make_expression_general(List* token_list, StringSlice identifier, size_t* idx, List* statement_list, char* prepend){
     Expression* expr = (Expression*)calloc(1, sizeof(Expression));
     expr->type = EXPRESSION_TYPE_GENERAL;
 
     strcat(expr->buffer, identifier.ptr);
+    if(prepend) {
+        strcat(expr->buffer, prepend);
+    }
     
     //Finish 
     Token* next_tok = get_next(token_list, idx);

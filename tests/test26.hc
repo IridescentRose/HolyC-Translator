@@ -1,7 +1,7 @@
-extern U0 printf(U8* fmt, ...);
-
-U0 Main() {
-    printf("Test!\n");
+U8 sum(U8 a, U8 b) {
+    return a + b;
 }
 
-Main();
+U8 i;
+i = sum(1, 2);
+"%d\n",i;

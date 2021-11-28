@@ -319,10 +319,10 @@ void parse_token_program(struct ScopeBlock *block, List *token_list, size_t *idx
                 (*idx)++;
             } else {
                 (*idx)--;
-                make_expression_general(token_list, token->slice, idx, block->statement_list);
+                make_expression_general(token_list, token->slice, idx, block->statement_list, NULL);
             }
         } else {
-            make_expression_general(token_list, token->slice, idx, block->statement_list);
+            make_expression_general(token_list, token->slice, idx, block->statement_list, NULL);
         }
         break;
     }
@@ -341,7 +341,18 @@ void parse_token_program(struct ScopeBlock *block, List *token_list, size_t *idx
 
     case TOKEN_TYPE_KEYWORD:
     {
-        CHECK_FAILED("KEYWORD DETECTED!\n");
+        switch(token->keyword) {
+
+            case KEYWORD_TYPE_RETURN: {
+                make_expression_general(token_list, token->slice, idx, block->statement_list, " ");
+                break;
+            }
+
+            default: {
+                CHECK_FAILED("KEYWORD DETECTED!\n");
+                break;
+            }
+        }
         break;
     }
 
