@@ -16,6 +16,7 @@
 #include "declaration.h"
 #include "preprocessor.h"
 #include "definition.h"
+#include "conditional.h"
 
 /**
  * @brief Statements are comprised of 3 types: Declaration, Definition, and Expressions. 
@@ -29,6 +30,7 @@ typedef enum{
     STATEMENT_TYPE_DECLARATION,
     STATEMENT_TYPE_DEFINITION,
     STATEMENT_TYPE_EXPRESSION,
+    STATEMENT_TYPE_CONDITIONAL,
 }StatementType;
 
 /**
@@ -82,3 +84,14 @@ Program* parse(List* token_list);
  * @param program Scope Block to free
  */
 void free_program(struct ScopeBlock* program);
+
+/**
+ * @brief Parse tokens into a program scope block
+ * 
+ * This is an extremely complicated method.
+ * 
+ * @param block Block to process into
+ * @param token_list List of all tokens
+ * @param idx Index of current token 
+ */
+void parse_token_program(struct ScopeBlock *block, List *token_list, size_t *idx);

@@ -188,6 +188,31 @@ void emit_definition(FILE* fp, Definition* statement, int tab_count) {
 }
 
 /**
+ * @brief Emits a conditional for code
+ * 
+ * @param fp File to write to
+ * @param statement Conditional object to read from
+ * @param tab_count Number of tabs for recursive emit_statement blocks
+ */
+void emit_condition(FILE* fp, Conditional* statement, int tab_count){
+    if(statement->type != CONDITIONAL_TYPE_ELSE){
+        if(statement->type == CONDITIONAL_TYPE_ELSE_IF) {
+            fprintf(fp, "else ");   
+        }
+        fprintf(fp, "if (%s) {\n", ((Expression*)statement->condition)->buffer);
+    } else {
+        fprintf(fp, "else {\n");
+    }
+    emit_statement_block(fp, statement->conditional_content, tab_count + 1);
+    
+    for(int i = 0; i < tab_count; i++){
+        fprintf(fp, "\t");
+    }
+
+    fprintf(fp, "}\n");
+}
+
+/**
  * @brief Recursively supported method to write all declarations, definitions, and expressions to a file
  * 
  * @param fp File to write to
@@ -226,6 +251,11 @@ void emit_statement_block(FILE* fp, struct ScopeBlock* block, int tab_count){
 
             case STATEMENT_TYPE_PREPROCESSOR: {
                 emit_preprocessor(fp, (PreProcessor*)statement->statementData);
+                break;
+            }
+
+            case STATEMENT_TYPE_CONDITIONAL: {
+                emit_condition(fp, (Conditional*)statement->statementData, tab_count);
                 break;
             }
         

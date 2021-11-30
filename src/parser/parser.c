@@ -330,16 +330,6 @@ void check_qualifiers(List* token_list, Token* token, size_t* idx, CType* type_q
     }
 }
 
-
-/**
- * @brief Parse tokens into a program scope block
- * 
- * This is an extremely complicated method.
- * 
- * @param block Block to process into
- * @param token_list List of all tokens
- * @param idx Index of current token 
- */
 void parse_token_program(struct ScopeBlock *block, List *token_list, size_t *idx)
 {
     Token *token = list_at(token_list, *idx);
@@ -404,6 +394,26 @@ void parse_token_program(struct ScopeBlock *block, List *token_list, size_t *idx
                 break;
             }
 
+            case KEYWORD_TYPE_IF: {
+                make_conditional_if(token_list, idx, block->statement_list, block, 0);
+                break;
+            }
+
+            case KEYWORD_TYPE_ELSE: {
+                Token* next_tok = get_next(token_list, idx);
+
+                if (next_tok->type == TOKEN_TYPE_KEYWORD && next_tok->keyword == KEYWORD_TYPE_IF) {
+                    make_conditional_if(token_list, idx, block->statement_list, block, 1);
+                } else if (next_tok->type == TOKEN_TYPE_SCOPING) {
+                    (*idx)--;
+                    make_conditional_else(token_list, idx, block->statement_list, block);
+                } else {
+                    CHECK_FAILED("Error: Expected valid token after keyword else! Found %s at %d:%d", next_tok->slice.ptr, next_tok->line, next_tok->cursor);
+                }
+
+                break;
+            }
+
             case KEYWORD_TYPE_RETURN: {
                 make_expression_general(token_list, token->slice, idx, block->statement_list, " ");
                 break;
@@ -459,6 +469,9 @@ void free_program(struct ScopeBlock *block)
         case STATEMENT_TYPE_DECLARATION:
         {
             Declaration *decl = (Declaration *)st->statementData;
+            if(decl->expr){
+                free(decl->expr);
+            }
             free(decl);
             break;
         }
