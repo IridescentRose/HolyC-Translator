@@ -222,8 +222,12 @@ void determine_primitive(List* token_list, Token* token, size_t* idx, struct Sco
         make_variable_declaration(block->statement_list, identifier, type);
         (*idx)++;
     } else if (next_tok->type == TOKEN_TYPE_ASSIGNMENT) {
-        make_variable_declaration(block->statement_list, identifier, type);
-        make_expression_compound_assign(token_list, identifier, idx, block->statement_list);
+        if(!type.is_const){
+            make_variable_declaration(block->statement_list, identifier, type);
+            make_expression_compound_assign(token_list, identifier, idx, block->statement_list);
+        } else {
+            make_variable_declaration_assign(token_list, idx, identifier, type, block->statement_list);
+        }
     } else if (next_tok->type == TOKEN_TYPE_PUNCTUATOR) {
         //Grab args 'til next punctuator - check terminator or scoping
         Arguments args;

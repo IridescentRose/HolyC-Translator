@@ -148,6 +148,10 @@ void emit_declaration(FILE* fp, Declaration* statement) {
         fprintf(fp, ")");
     }
 
+    if(statement->expr) {
+        fprintf(fp, " %s", ((Expression*)statement->expr)->buffer);
+    }
+
     fprintf(fp, ";\n");
 }
 

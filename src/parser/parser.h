@@ -12,9 +12,9 @@
 #include "../tokenizer/tokenizer.h"
 #include "utility_types.h"
 
+#include "expression.h"
 #include "declaration.h"
 #include "preprocessor.h"
-#include "expression.h"
 #include "definition.h"
 
 /**

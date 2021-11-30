@@ -1,4 +1,5 @@
 #pragma once
+#include "expression.h"
 #include "parser.h"
 
 /**
@@ -11,6 +12,8 @@ typedef struct{
 
     char is_function;
     Arguments args;
+
+    void* expr;
 } Declaration;
 
 /**
@@ -21,6 +24,17 @@ typedef struct{
  * @param type Type of identifier
  */
 void make_variable_declaration(List* list, StringSlice identifier, CType type);
+
+/**
+ * @brief Makes a variable declaration statement
+ * 
+ * @param token_list List of tokens
+ * @param idx Index to read from
+ * @param identifier Identifier Slice
+ * @param type Type of Identifier
+ * @param statement_list List of statements to add to
+ */
+void make_variable_declaration_assign(List* token_list, size_t* idx, StringSlice identifier, CType type, List* statement_list);
 
 /**
  * @brief Makes a variable declaration statement
