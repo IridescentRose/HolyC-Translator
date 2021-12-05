@@ -1,7 +1,7 @@
 <h1 align="center">HolyC-Translator</h1>
 <p align="center">Translates the language of our lord to commoner C for daily use</p>
 
----
+![example workflow](https://github.com/IridescentRose/HolyC-Translator/actions/workflows/c-cpp.yml/badge.svg)
 
 ## How to Use
 
